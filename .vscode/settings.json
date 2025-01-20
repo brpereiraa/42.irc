@@ -48,7 +48,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "csignal": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang"
 }

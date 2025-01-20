@@ -9,16 +9,7 @@
 #include <poll.h> //-> for poll()
 #include <csignal> //-> for signal()
 
-using std::cout;
-using std::endl;
-
-class Client {
-    int fd;
-    std::string ip_add;
-
-    public:
-        Client();
-        int GetFd();
-        void SetFd(int fd);
-        void SetIpAdd(std::string ip_add);
-};
+void ThrowException(std::string msg)
+{
+    throw(std::runtime_error(msg));
+}
