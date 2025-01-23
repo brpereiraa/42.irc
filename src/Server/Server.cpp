@@ -1,8 +1,40 @@
-#include "./includes/Server/Server.hpp"
+#include "Server.hpp"
 
-Server::Server() 
+bool Server::signal = false;
+
+Server::Server() {}
+
+Server::Server(int port) 
 {
     this->server_socket = -1;
+    this->port = port;
+}
+
+void Server::SignalHandler(int signum)
+{
+    (void)signum;
+    cout << endl << "Signal received!" << endl;
+    Server::signal = true;
+}
+
+void Server::ClearClients(int fd)
+{
+    for (size_t i = 0; i < fds.size(); i++) //remove da poll
+    {
+        if (fds[i].fd == fd)
+        {
+            fds.erase(fds.begin() + i);
+            break;
+        }
+    }
+    for (size_t i = 0; i < clients.size(); i++)
+    {
+        if (clients[i].GetFd() == fd)
+        {
+            clients.erase(clients.begin() + i);
+            break;
+        }
+    }
 }
 
 //acho que isso pode ir para utils
@@ -48,16 +80,34 @@ void Server::AcceptNewClient()
 
 void Server::ReceiveNewData(int fd)
 {
-    
+    char buff[1024]; //para os dados recebidos
+    memset(buff, 0, sizeof(buff)); //limpar o buffer
+
+    ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
+
+    if (bytes <= 0) //cliente desconectou
+    {
+        cout << "Client <" << fd << "> disconnected" << endl;
+        ClearClients(fd);
+        close(fd);
+    }
+    else //imprime os dados recebidos
+    {
+        //associar o buffer ao cliente aqui
+        buff[bytes] = '\0';
+        cout << "Client <" << fd << "> data: " << buff << endl;
+        //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
+        //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+    }
 }
 
-bool Server::ServerInit(int port, std::string address)
+void Server::ServerInit()
 {
     struct sockaddr_in server_address;
 	struct pollfd pollfd;
 
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(port);
+    server_address.sin_port = htons(this->port);
     server_address.sin_addr.s_addr = INADDR_ANY;
 
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -83,7 +133,7 @@ bool Server::ServerInit(int port, std::string address)
     pollfd.revents = 0; //eventos que aconteceram, sera preenchido pelo poll
     fds.push_back(pollfd); //adiciono o socket criado ao FDS, essa sera a lista monitorada pelo poll
 
-    while (1)
+    while (Server::signal == false)
     {
         if ((poll(&fds[0], fds.size(), -1)) == -1) //monitora a lista de sockets, espera por um evento
             ThrowException("poll() failed");
@@ -98,4 +148,18 @@ bool Server::ServerInit(int port, std::string address)
     }
 
     CloseFds();
+}
+
+void Server::ParseCmd(std::string &cmd, int fd)
+{
+    (void)cmd;
+    (void)fd;
+/*  ∗ KICK - Eject a client from the channel
+    ∗ INVITE - Invite a client to a channel
+    ∗ TOPIC - Change or view the channel topic
+    ∗ MODE - Change the channel’s mode:
+        · i: Set/remove Invite-only channel
+        · t: Set/remove the restrictions of the TOPIC command to channel operators
+        · k: Set/remove the channel key (password)
+        · o: Give/take channel operator privilege */
 }

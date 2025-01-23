@@ -1,0 +1,44 @@
+O que é um socket no IRC?
+
+Pensa assim: quando alguém quer participar do chat IRC, o cliente (o programa que o usuário está rodando) precisa enviar mensagens para o servidor e receber mensagens de volta. O socket é a "porta mágica" que conecta os dois, permitindo essa comunicação em tempo real.
+Como funciona no seu servidor de IRC:
+
+    Socket do Servidor (Passivo):
+        Você cria um socket para "ficar escutando" novas conexões de clientes.
+        Esse é o socket principal que não fala diretamente com ninguém; ele só aceita novos clientes e cria sockets ativos para cada um.
+
+    Socket do Cliente (Ativo):
+        Assim que um cliente se conecta, o servidor aceita a conexão e cria um novo socket só para aquele cliente.
+        Esse socket é usado para enviar e receber mensagens diretamente com aquele cliente.
+
+        The main question here is “What is a socket?” Essentially, a socket is a file descriptor. If you’re a 42 School student, 
+        ou’ve probably heard about IPC (inter-process communication). There are various methods that processes can use to communicate 
+        with each other, and some projects explore some of these methods. For example, pipes are used in Pipex, signals in Minitalk, 
+        semaphores in Philosophers, and of course, sockets in ft_irc and webserv. A socket is an endpoint that enables two processes 
+        to communicate with each other, either on the same machine or across a network. It acts as an interface between the application 
+        layer and the transport layer of the networking stack.
+
+Analogia no IRC:
+
+    Socket do servidor: É como a recepção de um hotel. Ele não fala diretamente com os hóspedes, mas registra quem chega e direciona para o quarto (socket ativo).
+    Socket de cliente: É o quarto onde o hóspede (cliente) pode conversar diretamente com o hotel (servidor) ou com outros hóspedes (outros clientes, via mensagens enviadas pelo servidor).
+
+Fluxo em um servidor IRC:
+
+    Criação do Socket Passivo:
+        Você cria o socket com socket(), associa ele a um endereço e porta com bind() e começa a "escutar" novas conexões com listen().
+
+    Aceitando Conexões:
+        Quando um cliente tenta se conectar, o servidor usa accept() no socket passivo e cria um novo socket ativo só para aquele cliente.
+
+    Comunicação com o Cliente:
+        O servidor usa o socket ativo para trocar mensagens com o cliente (com send() e recv()).
+
+    Gerenciamento de Múltiplos Clientes:
+        Para manter vários clientes conectados ao mesmo tempo, você pode usar algo como poll, select ou epoll, para monitorar múltiplos sockets ativos.
+
+Exemplo Prático:
+
+    Quando um usuário abre o cliente IRC e tenta entrar no servidor, ele envia uma solicitação para o endereço IP e a porta do servidor.
+    O servidor escuta isso no socket passivo, aceita a conexão e cria um novo socket ativo para gerenciar aquele cliente.
+    A partir daí, tudo que o cliente digita é enviado ao servidor pelo socket, que repassa para os outros clientes conectados.

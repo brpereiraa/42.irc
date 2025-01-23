@@ -1,3 +1,6 @@
+#ifndef LIBRARIES_HPP
+#define LIBRARIES_HPP
+
 #include <iostream>
 #include <vector> //-> for vector
 #include <sys/socket.h> //-> for socket()
@@ -8,17 +11,14 @@
 #include <arpa/inet.h> //-> for inet_ntoa()
 #include <poll.h> //-> for poll()
 #include <csignal> //-> for signal()
+#include <cstring>
 
-using std::cout;
-using std::endl;
+#include "Client.hpp"
+#include "Server.hpp"
 
-class Client {
-    int fd;
-    std::string ip_add;
+inline void ThrowException(std::string msg)
+{
+    throw(std::runtime_error(msg));
+}
 
-    public:
-        Client();
-        int GetFd();
-        void SetFd(int fd);
-        void SetIpAdd(std::string ip_add);
-};
+#endif // !LIBRARIES_HPP
