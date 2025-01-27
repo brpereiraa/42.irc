@@ -52,6 +52,11 @@ void Server::CloseFds()
     }
 }
 
+Client *Server::GetClient(int fd)
+{
+
+}
+
 void Server::AcceptNewClient()
 {
     Client cli;
@@ -75,6 +80,9 @@ void Server::AcceptNewClient()
     clients.push_back(cli); //adiciona novo cliente a lista
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
+    std::string welcomeMsg = ":myserver 001 " + cli.GetIpAdd() + " :Welcome to the IRC server\r\n";
+    send(cli.GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
     cout << "Client <" << incofd << "> connected" << endl;
 }
 
@@ -82,6 +90,8 @@ void Server::ReceiveNewData(int fd)
 {
     char buff[1024]; //para os dados recebidos
     memset(buff, 0, sizeof(buff)); //limpar o buffer
+    Client *cli = GetClient(fd);
+    std::vector<std::string> cmd;
 
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
 
@@ -98,6 +108,12 @@ void Server::ReceiveNewData(int fd)
         cout << "Client <" << fd << "> data: " << buff << endl;
         //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
         //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+        cli->SetBuffer(buff);
+        cmd = SplitBuffer(cli->GetBuffer());
+        for (int i = 0; i < cmd.size(); i++)
+        {
+            //if (cmd )
+        }
     }
 }
 
@@ -135,18 +151,20 @@ void Server::ServerInit()
 
     while (Server::signal == false)
     {
-        if ((poll(&fds[0], fds.size(), -1)) == -1) //monitora a lista de sockets, espera por um evento
+        if ((poll(&fds[0], fds.size(), -1)) == -1 && Server::signal == false) //monitora a lista de sockets, espera por um evento
             ThrowException("poll() failed");
 
         for (size_t i = 0; i < fds.size(); i++)
         {
             if (fds[i].revents & POLLIN) //se tiver um evento neste socket
-                AcceptNewClient();
-            else
-                ReceiveNewData(fds[i].fd);
+            {
+                if (fds[i].fd == server_socket)
+                    AcceptNewClient();
+                else
+                    ReceiveNewData(fds[i].fd);
+            }
         }
     }
-
     CloseFds();
 }
 
@@ -162,4 +180,19 @@ void Server::ParseCmd(std::string &cmd, int fd)
         · t: Set/remove the restrictions of the TOPIC command to channel operators
         · k: Set/remove the channel key (password)
         · o: Give/take channel operator privilege */
+}
+
+std::vector<std::string> Server::SplitBuffer(std::string str)
+{
+	std::vector<std::string> vec;
+	std::istringstream stm(str);
+	std::string line;
+	while(std::getline(stm, line))
+	{
+		size_t pos = line.find_first_of("\r\n");
+		if(pos != std::string::npos)
+			line = line.substr(0, pos);
+		vec.push_back(line);
+	}
+	return vec;
 }

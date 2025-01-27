@@ -24,6 +24,8 @@ class Server {
         void ReceiveNewData(int fd);
         void ClearClients(int fd);
         void ParseCmd(std::string &cmd, int fd);
+        Client *GetClient(int fd);
+        std::vector<std::string> SplitBuffer(std::string str);
         
         static void SignalHandler(int signum);
 

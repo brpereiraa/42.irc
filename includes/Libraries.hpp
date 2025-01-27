@@ -12,6 +12,7 @@
 #include <poll.h> //-> for poll()
 #include <csignal> //-> for signal()
 #include <cstring>
+#include <sstream>
 
 #include "Client.hpp"
 #include "Server.hpp"
