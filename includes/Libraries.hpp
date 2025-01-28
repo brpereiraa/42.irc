@@ -13,11 +13,13 @@
 #include <csignal> //-> for signal()
 #include <cstring>
 #include <sstream>
+#include <bits/stdc++.h> 
 
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
-#include "../src/Parser.cpp"
+#include "Parser.hpp"
+#include "Commands.hpp"
 
 // typedef std::pair<t_args, std::string> t_input
 

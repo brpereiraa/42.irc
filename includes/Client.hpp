@@ -12,7 +12,7 @@ class Client {
     std::string ip_add;
     std::string nickname;
     std::string username;
-    bool isOperator;
+    //bool isOperator;
 
     public:
         Client();
