@@ -21,6 +21,7 @@ class Server {
         void CloseFds();
         void ServerInit();
         void AcceptNewClient();
+        bool handler(int fd);
         void ReceiveNewData(int fd);
         void ClearClients(int fd);
         void ParseCmd(std::string &cmd, int fd);

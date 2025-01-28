@@ -16,6 +16,9 @@
 
 #include "Client.hpp"
 #include "Server.hpp"
+#include "Parser.cpp"
+
+typedef std::pair<t_args, t_string> t_input
 
 inline void ThrowException(std::string msg)
 {
