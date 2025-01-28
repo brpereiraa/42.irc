@@ -15,17 +15,13 @@ bool handler(int fd, std::string line)
     // remove o /r
    size_t pos = line.find('\r');
    if (pos != std::string::npos)
-   {
         line.erase(pos);
-   }
 
     // da parse no input para comandos e argumentos
     // e verifica se o input first nao esta vazio ex KICK ou INVITE etc
-   t_input input = getInput(line);
-   if (input.first.empty())
-   {
-    return false;
-   }
+    t_input input = getInput(line);
+    if (input.first.empty())
+        return false;
     if (input.first[0] == "KICK")
         return (KICK(fd, input, input.first[0]));
     if (input.first[0] == "INVITE")
