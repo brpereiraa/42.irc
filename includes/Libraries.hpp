@@ -17,6 +17,9 @@
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
+#include "../src/Parser.cpp"
+
+// typedef std::pair<t_args, std::string> t_input
 
 inline void ThrowException(std::string msg)
 {

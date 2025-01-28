@@ -168,20 +168,6 @@ void Server::ServerInit()
     CloseFds();
 }
 
-void Server::ParseCmd(std::string &cmd, int fd)
-{
-    (void)cmd;
-    (void)fd;
-/*  ∗ KICK - Eject a client from the channel
-    ∗ INVITE - Invite a client to a channel
-    ∗ TOPIC - Change or view the channel topic
-    ∗ MODE - Change the channel’s mode:
-        · i: Set/remove Invite-only channel
-        · t: Set/remove the restrictions of the TOPIC command to channel operators
-        · k: Set/remove the channel key (password)
-        · o: Give/take channel operator privilege */
-}
-
 std::vector<std::string> Server::SplitBuffer(std::string str)
 {
 	std::vector<std::string> vec;
