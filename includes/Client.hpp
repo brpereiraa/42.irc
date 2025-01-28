@@ -12,14 +12,15 @@ class Client {
     std::string ip_add;
     std::string nickname;
     std::string username;
+    bool isOperator;
 
     public:
         Client();
         int GetFd();
-        std::string GetIpAdd();
-        std::string GetNickname();
-        std::string GetUsername();
-        std::string GetBuffer();
+        const std::string GetIpAdd() const;
+        const std::string GetNickname() const;
+        const std::string GetUsername() const;
+        const std::string GetBuffer() const;
 
         void SetFd(int fd);
         void SetNickname(std::string nick);

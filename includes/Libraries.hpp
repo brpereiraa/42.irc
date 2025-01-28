@@ -16,6 +16,7 @@
 
 #include "Client.hpp"
 #include "Server.hpp"
+#include "Channel.hpp"
 
 inline void ThrowException(std::string msg)
 {

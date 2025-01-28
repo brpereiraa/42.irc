@@ -4,13 +4,13 @@ Client::Client() {}
 
 int Client::GetFd() { return this->fd; }
 
-std::string Client::GetIpAdd() { return this->ip_add; }
+const std::string Client::GetIpAdd() const { return this->ip_add; }
 
-std::string Client::GetNickname() { return this->nickname; }
+const std::string Client::GetNickname() const { return this->nickname; }
 
-std::string Client::GetUsername() { return this->username; }
+const std::string Client::GetUsername() const { return this->username; }
 
-std::string Client::GetBuffer() { return this->buff; }
+const std::string Client::GetBuffer() const { return this->buff; }
 
 void Client::SetFd(int fd) { this->fd = fd; }
 

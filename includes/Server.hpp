@@ -14,6 +14,7 @@ class Server {
     int server_socket;
     std::vector<Client> clients;
     std::vector<struct pollfd> fds;
+    std::vector<Channel> Channels;
 
     public:
         Server();

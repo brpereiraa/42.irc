@@ -52,10 +52,10 @@ void Server::CloseFds()
     }
 }
 
-Client *Server::GetClient(int fd)
-{
+// Client *Server::GetClient(int fd)
+// {
 
-}
+// }
 
 void Server::AcceptNewClient()
 {
@@ -90,7 +90,7 @@ void Server::ReceiveNewData(int fd)
 {
     char buff[1024]; //para os dados recebidos
     memset(buff, 0, sizeof(buff)); //limpar o buffer
-    Client *cli = GetClient(fd);
+    // Client *cli = GetClient(fd);
     std::vector<std::string> cmd;
 
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
@@ -108,12 +108,12 @@ void Server::ReceiveNewData(int fd)
         cout << "Client <" << fd << "> data: " << buff << endl;
         //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
         //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
-        cli->SetBuffer(buff);
-        cmd = SplitBuffer(cli->GetBuffer());
-        for (int i = 0; i < cmd.size(); i++)
-        {
-            //if (cmd )
-        }
+        // cli->SetBuffer(buff);
+        // cmd = SplitBuffer(cli->GetBuffer());
+        // for (int i = 0; i < cmd.size(); i++)
+        // {
+        //     //if (cmd )
+        // }
     }
 }
 
