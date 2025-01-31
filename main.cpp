@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrichard <mrichard@student.42porto.pt>     +#+  +:+       +#+        */
+/*   By: bruno <bruno@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 19:40:11 by mrichard          #+#    #+#             */
-/*   Updated: 2025/01/27 21:20:01 by mrichard         ###   ########.fr       */
+/*   Updated: 2025/01/30 22:43:10 by bruno            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,14 @@ using std::endl;
 
 int main(int argc, char **argv)
 {
+	// Channel *ch = new Channel("name");
+
+	// std::map<std::string, Client>::iterator it = ch->clients.begin();
+	// while(it  != ch->clients.end()){
+	// 	std::cout << it->first << " dw" << it->second.GetUsername() << std::endl;
+	// 	it++;
+	// }
+
     if (argc != 3)
     {
         cout << "Invalid number of params!" << endl;

@@ -13,13 +13,14 @@ class Server {
     static bool signal;
     int port;
     int server_socket;
-    std::vector<Client> clients;
     std::vector<struct pollfd> fds;
-    std::vector<Channel> Channels;
+    std::map<std::string,  Client> clients;
+    std::map<std::string, Channel> channels;
 
     public:
         Server();
         Server(int port);
+
         void CloseFds();
         void ServerInit();
         void AcceptNewClient();
@@ -28,6 +29,14 @@ class Server {
         void ParseCmd(std::string &cmd, int fd);
         //Client *GetClient(int fd);
         std::vector<std::string> SplitBuffer(std::string str);
+
+        std::map<std::string, Client> getClients() const;
+        std::map<std::string, Channel> getChannels() const;
+
+        bool    addClient(Client &client);
+        bool    addChannel(Channel &channel);
+        bool    removeClient(std::string username);
+        bool    removeChannel(std::string name);
         
         static void SignalHandler(int signum);
 

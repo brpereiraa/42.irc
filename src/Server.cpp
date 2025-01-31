@@ -10,6 +10,42 @@ Server::Server(int port)
     this->port = port;
 }
 
+bool Server::addChannel(Channel &channel){
+	if (this->channels.count(channel.GetTopic())){
+		std::cout << "Channel with topic  " << channel.GetTopic() << " already exists" << std::endl;
+        return (false);
+    }
+	this->channels[channel.GetTopic()] = channel;
+    return (true);
+}
+
+bool Server::addClient(Client &client){
+	if (this->clients.count(client.GetUsername())){
+		std::cout << "Client with topic  " << client.GetUsername() << " already exists" << std::endl;
+        return (false);
+    }
+	this->clients[client.GetUsername()] = client;
+    return (true);
+}
+
+bool Server::removeChannel(std::string name){
+    if (this->clients.count(name)){
+        this->clients.erase(name);
+        return (true);
+    }
+    std::cout << "Channel with name " << name << " doesn't exist" << std::endl;
+    return (false);
+}
+
+bool Server::removeClient(std::string username){
+    if (this->clients.count(username)){
+        this->clients.erase(username);
+        return (true);
+    }
+    std::cout << "Channel with name " << username << " doesn't exist" << std::endl;
+    return (false);
+}
+
 void Server::SignalHandler(int signum)
 {
     (void)signum;
@@ -19,6 +55,8 @@ void Server::SignalHandler(int signum)
 
 void Server::ClearClients(int fd)
 {
+    std::map<std::string, Client>::iterator it = this->clients.begin();
+	
     for (size_t i = 0; i < fds.size(); i++) //remove da poll
     {
         if (fds[i].fd == fd)
@@ -27,24 +65,34 @@ void Server::ClearClients(int fd)
             break;
         }
     }
-    for (size_t i = 0; i < clients.size(); i++)
-    {
-        if (clients[i].GetFd() == fd)
-        {
-            clients.erase(clients.begin() + i);
+
+    if (!this->clients.empty()){
+        std::cout << "something: " << it->second.GetUsername() << "  ." << std::endl;
+    }
+
+    while (it != this->clients.end()){
+        if (it->second.GetFd() == fd){
+            this->removeClient(it->first);
             break;
         }
+		it++;
+	}
+
+    if (!this->clients.empty()){
+        std::cout << "something: " << it->second.GetUsername() << std::endl;
     }
 }
 
 //acho que isso pode ir para utils
 void Server::CloseFds()
 {
-    for (size_t i = 0; i < clients.size(); i++)
-    {
-        cout << "Client <" << clients[i].GetFd() << "> disconnected" << endl;
-        close(clients[i].GetFd());
-    }
+
+    std::map<std::string, Client>::iterator it = this->clients.begin();
+
+    while (it != this->clients.end()){
+        close(it->second.GetFd());
+		it++;
+	}
     if (server_socket != -1)
     {
         cout << "Server <" << server_socket << "> disconnected" << endl;
@@ -59,7 +107,7 @@ void Server::CloseFds()
 
 void Server::AcceptNewClient()
 {
-    Client cli;
+    Client cli("Default Name", "Default Username");
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
@@ -77,7 +125,7 @@ void Server::AcceptNewClient()
 
     cli.SetFd(incofd); //settar o fd do cliente
     cli.SetIpAdd(inet_ntoa((cli_add.sin_addr))); //converte o endereco de ip para string e setta
-    clients.push_back(cli); //adiciona novo cliente a lista
+    this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
     std::string welcomeMsg = ":myserver 001 " + cli.GetIpAdd() + " :Welcome to the IRC server\r\n";

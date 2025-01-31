@@ -14,6 +14,7 @@
 #include <cstring>
 #include <sstream>
 #include <bits/stdc++.h> 
+#include <map>
 
 #include "Client.hpp"
 #include "Server.hpp"

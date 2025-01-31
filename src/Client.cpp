@@ -1,6 +1,10 @@
 #include "Client.hpp"
 
 Client::Client() {}
+Client::Client(std::string nickname, std::string username){
+	this->nickname = nickname;
+	this->username = username;
+}
 
 int Client::GetFd() { return this->fd; }
 

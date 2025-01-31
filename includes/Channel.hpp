@@ -7,8 +7,8 @@ class Channel {
 	private:
 		std::string topic;
 		std::string password;
-		std::vector<Client> clients;
-		std::vector<Client> admin;
+		std::map<std::string, Client> admins;
+		std::map<std::string, Client> clients;
 
 	public:
 		Channel();
@@ -17,11 +17,16 @@ class Channel {
 
 		const std::string GetTopic() const;
 		const std::string GetPassword() const;
-		const std::vector<Client> GetClients() const;
-		const std::vector<Client> GetAdmins() const;
+		const std::map<std::string, Client> GetClients() const;
+		const std::map<std::string, Client> GetAdmins() const;
 
 		void SetTopic(std::string topic);
 		void SetPassword(std::string password);
+
+		void AddClient(Client &client);
+		void RemoveClient(Client &client);
+
+
 };
 
 #endif

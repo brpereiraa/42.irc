@@ -16,6 +16,7 @@ class Client {
 
     public:
         Client();
+        Client(std::string nickname, std::string username);
         int GetFd();
         const std::string GetIpAdd() const;
         const std::string GetNickname() const;
@@ -27,5 +28,7 @@ class Client {
         void SetUsername(std::string user);
         void SetBuffer(char *buff);
         void SetIpAdd(std::string ip_add);
+
+		bool operator==(const Client &client);	
 };
 #endif // !CLIENT_HPP
