@@ -20,29 +20,29 @@ bool Server::addChannel(Channel &channel){
 }
 
 bool Server::addClient(Client &client){
-	if (this->clients.count(client.GetUsername())){
-		std::cout << "Client with topic  " << client.GetUsername() << " already exists" << std::endl;
+	if (this->clients.count(client.GetFd())){
+		std::cout << "Client with topic  " << client.GetFd() << " already exists" << std::endl;
         return (false);
     }
-	this->clients[client.GetUsername()] = client;
+	this->clients[client.GetFd()] = client;
     return (true);
 }
 
 bool Server::removeChannel(std::string name){
-    if (this->clients.count(name)){
-        this->clients.erase(name);
+    if (this->channels.count(name)){
+        this->channels.erase(name);
         return (true);
     }
     std::cout << "Channel with name " << name << " doesn't exist" << std::endl;
     return (false);
 }
 
-bool Server::removeClient(std::string username){
-    if (this->clients.count(username)){
-        this->clients.erase(username);
+bool Server::removeClient(int fd){
+    if (this->clients.count(fd)){
+        this->clients.erase(fd);
         return (true);
     }
-    std::cout << "Channel with name " << username << " doesn't exist" << std::endl;
+    std::cout << "Channel with name " << fd << " doesn't exist" << std::endl;
     return (false);
 }
 
@@ -55,7 +55,7 @@ void Server::SignalHandler(int signum)
 
 void Server::ClearClients(int fd)
 {
-    std::map<std::string, Client>::iterator it = this->clients.begin();
+    std::map<int, Client>::iterator it = this->clients.begin();
 	
     for (size_t i = 0; i < fds.size(); i++) //remove da poll
     {
@@ -87,7 +87,7 @@ void Server::ClearClients(int fd)
 void Server::CloseFds()
 {
 
-    std::map<std::string, Client>::iterator it = this->clients.begin();
+    std::map<int, Client>::iterator it = this->clients.begin();
 
     while (it != this->clients.end()){
         close(it->second.GetFd());
@@ -158,6 +158,27 @@ void Server::ReceiveNewData(int fd)
         //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
         cli->SetBuffer(buff);
         cmd = SplitBuffer(cli->GetBuffer());
+
+        std::vector<std::string>::iterator it = cmd.begin();
+
+        while(it != cmd.end()){
+            if (it->substr(0, 4) == "NICK") {
+                std::string nickname = it->substr(5);
+                this->clients[fd].SetNickname(nickname);
+                cout << "Client set nickname: " << nickname << endl;
+            }
+            else if (it->substr(0, 4) == "USER") {
+                std::string realName = it->substr(5); // USER <username> <hostname> <servername> :<real name>
+                size_t colonPos = realName.find(":");
+                if (colonPos != std::string::npos) {
+                    realName = realName.substr(colonPos + 1); // Remove the "real name" part after the colon
+                }
+                this->clients[fd].SetUsername(realName);  // Set the real name
+                cout << "Client set real name: " << realName << endl;
+            }
+            it++;
+        }
+        
         for (unsigned long i = 0; i < cmd.size(); i++)
         {
             Handler(fd, cli->GetBuffer());

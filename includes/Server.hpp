@@ -14,7 +14,7 @@ class Server {
     int port;
     int server_socket;
     std::vector<struct pollfd> fds;
-    std::map<std::string,  Client> clients;
+    std::map<int,  Client> clients;
     std::map<std::string, Channel> channels;
 
     public:
@@ -30,12 +30,12 @@ class Server {
         //Client *GetClient(int fd);
         std::vector<std::string> SplitBuffer(std::string str);
 
-        std::map<std::string, Client> getClients() const;
+        std::map<int, Client> getClients() const;
         std::map<std::string, Channel> getChannels() const;
 
         bool    addClient(Client &client);
         bool    addChannel(Channel &channel);
-        bool    removeClient(std::string username);
+        bool    removeClient(int fd);
         bool    removeChannel(std::string name);
         
         static void SignalHandler(int signum);
