@@ -10,6 +10,21 @@ Server::Server(int port)
     this->port = port;
 }
 
+std::string Server::getTime() const {
+   std::stringstream ss;
+   ss << "\nMonth: " << this->time->tm_mon + 1
+      << "\nDay: " << this->time->tm_mday 
+      << "\nHour: " << this->time->tm_hour
+      << "\nMinute: " << this->time->tm_min
+      << "\nSecond: " << this->time->tm_sec;
+   return ss.str();
+}
+
+void    Server::setTime() {
+    time_t now = std::time(0);
+    this->time = localtime(&now);
+}
+
 bool Server::addChannel(Channel &channel){
 	if (this->channels.count(channel.GetTopic())){
 		std::cout << "Channel with topic  " << channel.GetTopic() << " already exists" << std::endl;
@@ -107,7 +122,7 @@ void Server::CloseFds()
 
 void Server::AcceptNewClient()
 {
-    Client cli("Default Name", "Default Username");
+    Client cli("", "");
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
@@ -128,8 +143,7 @@ void Server::AcceptNewClient()
     this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
-    std::string welcomeMsg = ":myserver 001 " + cli.GetIpAdd() + " :Welcome to the IRC server\r\n";
-    send(cli.GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    
 
     cout << "Client <" << incofd << "> connected" << endl;
 }
@@ -183,6 +197,16 @@ void Server::ReceiveNewData(int fd)
         {
             Handler(fd, cli->GetBuffer());
         }
+
+        if (!this->clients[fd].GetNickname().empty() && !this->clients[fd].GetUsername().empty() && !this->clients[fd].LoggedIn()){
+            this->clients[fd].SetLogged(true);
+            std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetIpAdd() + " :Welcome to the IRC server " + this->clients[fd].GetNickname() + "\r\n";
+            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+            welcomeMsg = ":myserver 002 " + this->clients[fd].GetIpAdd() + " :Your host is running IRC Server, running version 1.0 \r\n";
+            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+            welcomeMsg = ":myserver 003 " + this->clients[fd].GetIpAdd() + " :This server was created  " +  this->getTime() +  "\r\n";
+            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+        }
     }
 }
 
@@ -212,6 +236,8 @@ void Server::ServerInit()
     //receber conexoes, setted para ser socket passivo (apenas esperar para ouvir)
     if (listen(server_socket, SOMAXCONN) == -1)
         ThrowException("listen() failed");
+
+    this->setTime();
 
     pollfd.fd = server_socket; //socket para ser monitorado
     pollfd.events = POLLIN; //prepara para ler dados

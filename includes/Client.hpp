@@ -8,6 +8,7 @@ using std::endl;
 
 class Client {
     int fd;
+    bool log;
     std::string buff;
     std::string ip_add;
     std::string nickname;
@@ -22,12 +23,15 @@ class Client {
         const std::string GetNickname() const;
         const std::string GetUsername() const;
         const std::string GetBuffer() const;
+        bool LoggedIn () const;
 
         void SetFd(int fd);
         void SetNickname(std::string nick);
         void SetUsername(std::string user);
         void SetBuffer(char *buff);
         void SetIpAdd(std::string ip_add);
+        void SetLogged(bool log);
+
 
 		bool operator==(const Client &client);	
 };

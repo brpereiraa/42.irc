@@ -16,6 +16,7 @@ class Server {
     std::vector<struct pollfd> fds;
     std::map<int,  Client> clients;
     std::map<std::string, Channel> channels;
+    tm *time;
 
     public:
         Server();
@@ -32,6 +33,9 @@ class Server {
 
         std::map<int, Client> getClients() const;
         std::map<std::string, Channel> getChannels() const;
+        std::string getTime() const;
+
+        void    setTime();
 
         bool    addClient(Client &client);
         bool    addChannel(Channel &channel);

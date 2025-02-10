@@ -15,6 +15,7 @@
 #include <sstream>
 #include <bits/stdc++.h> 
 #include <map>
+#include <ctime>
 
 #include "Client.hpp"
 #include "Server.hpp"
