@@ -1,19 +1,11 @@
 #include "Parser.hpp"
 
+//poderia ser retorno void, mas o que faz no cmds.empty()?
 bool Handler(int fd, std::string line)
 {
-    (void)fd;
-/*  ∗ KICK - Eject a client from the channel
-    ∗ INVITE - Invite a client to a channel
-    ∗ TOPIC - Change or view the channel topic
-    ∗ MODE - Change the channel’s mode:
-        · i: Set/remove Invite-only channel
-        · t: Set/remove the restrictions of the TOPIC command to channel operators
-        · k: Set/remove the channel key (password)
-        · o: Give/take channel operator privilege
-           l: Set/remove the user limit to channel */
+    ACommands *command = NULL;
 
-    // remove o /r
+    (void)fd;
     size_t pos = line.find('\r');
     if (pos != std::string::npos)
             line.erase(pos);    
@@ -27,16 +19,20 @@ bool Handler(int fd, std::string line)
     // t_input input = getInput(line);
     if (cmds.empty())
         return false;
-    // if (cmds == "JOIN")
-    //     return (JOIN(fd, line));
-    // if (input.first[0] == "KICK")
-    //     return (KICK(fd, input, input.first[0]));
-    // if (input.first[0] == "INVITE")
-    //     return (INVITE(fd, input, input.first[0]));
-    // if (input.first[0] == "TOPIC")
-    //     return (INVITE(fd, input, input.first[0]));
-    // if (input.first[0] == "MODE")
-    //     return (MODE(fd, input, input.first[0]));
+    if (cmds == "JOIN")
+        command = new Join();
+    if (cmds == "KICK")
+        command = new Kick();
+    if (cmds == "INVITE")
+        command = new Invite();
+    if (cmds == "TOPIC")
+        command = new Topic();
+    if (cmds == "MODE")
+        command = new Mode();
+        
+    if (command) {
+        command->execute(fd, line); // Chama o método polimórfico
+        delete command; // Libera a memória manualmente
+    }
     return true;
-
 }

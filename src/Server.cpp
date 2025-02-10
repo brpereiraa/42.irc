@@ -11,13 +11,11 @@ Server::Server(int port)
 }
 
 std::string Server::getTime() const {
-   std::stringstream ss;
-   ss << "\nMonth: " << this->time->tm_mon + 1
-      << "\nDay: " << this->time->tm_mday 
-      << "\nHour: " << this->time->tm_hour
-      << "\nMinute: " << this->time->tm_min
-      << "\nSecond: " << this->time->tm_sec;
-   return ss.str();
+    std::stringstream ss;
+
+    ss << this->time->tm_mon + 1 << "/" << this->time->tm_mday << " " << this->time->tm_hour << ":" << this->time->tm_min << ":" << this->time->tm_sec;
+
+    return ss.str();
 }
 
 void    Server::setTime() {
@@ -25,8 +23,8 @@ void    Server::setTime() {
     this->time = localtime(&now);
 }
 
-bool Server::addChannel(Channel &channel){
-	if (this->channels.count(channel.GetTopic())){
+bool Server::addChannel(Channel &channel) {
+	if (this->channels.count(channel.GetTopic())) {
 		std::cout << "Channel with topic  " << channel.GetTopic() << " already exists" << std::endl;
         return (false);
     }
@@ -34,8 +32,8 @@ bool Server::addChannel(Channel &channel){
     return (true);
 }
 
-bool Server::addClient(Client &client){
-	if (this->clients.count(client.GetFd())){
+bool Server::addClient(Client &client) {
+	if (this->clients.count(client.GetFd())) {
 		std::cout << "Client with topic  " << client.GetFd() << " already exists" << std::endl;
         return (false);
     }
@@ -43,7 +41,7 @@ bool Server::addClient(Client &client){
     return (true);
 }
 
-bool Server::removeChannel(std::string name){
+bool Server::removeChannel(std::string name) {
     if (this->channels.count(name)){
         this->channels.erase(name);
         return (true);
@@ -52,7 +50,7 @@ bool Server::removeChannel(std::string name){
     return (false);
 }
 
-bool Server::removeClient(int fd){
+bool Server::removeClient(int fd) {
     if (this->clients.count(fd)){
         this->clients.erase(fd);
         return (true);
@@ -101,7 +99,6 @@ void Server::ClearClients(int fd)
 //acho que isso pode ir para utils
 void Server::CloseFds()
 {
-
     std::map<int, Client>::iterator it = this->clients.begin();
 
     while (it != this->clients.end()){
@@ -115,10 +112,13 @@ void Server::CloseFds()
     }
 }
 
-// Client *Server::GetClient(int fd)
-// {
-
-// }
+Client *Server::GetClient(int fd){
+	for (size_t i = 0; i < this->clients.size(); i++){
+		if (this->clients[i].GetFd() == fd)
+			return &this->clients[i];
+	}
+	return NULL;
+}
 
 void Server::AcceptNewClient()
 {
@@ -142,8 +142,6 @@ void Server::AcceptNewClient()
     cli.SetIpAdd(inet_ntoa((cli_add.sin_addr))); //converte o endereco de ip para string e setta
     this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
-
-    
 
     cout << "Client <" << incofd << "> connected" << endl;
 }
@@ -175,7 +173,7 @@ void Server::ReceiveNewData(int fd)
 
         std::vector<std::string>::iterator it = cmd.begin();
 
-        while(it != cmd.end()){
+        while(it != cmd.end()) {
             if (it->substr(0, 4) == "NICK") {
                 std::string nickname = it->substr(5);
                 this->clients[fd].SetNickname(nickname);
@@ -193,20 +191,11 @@ void Server::ReceiveNewData(int fd)
             it++;
         }
         
-        for (unsigned long i = 0; i < cmd.size(); i++)
-        {
-            Handler(fd, cli->GetBuffer());
-        }
+        if (registered(fd))
+            SendMessages(fd);
 
-        if (!this->clients[fd].GetNickname().empty() && !this->clients[fd].GetUsername().empty() && !this->clients[fd].LoggedIn()){
-            this->clients[fd].SetLogged(true);
-            std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetIpAdd() + " :Welcome to the IRC server " + this->clients[fd].GetNickname() + "\r\n";
-            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
-            welcomeMsg = ":myserver 002 " + this->clients[fd].GetIpAdd() + " :Your host is running IRC Server, running version 1.0 \r\n";
-            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
-            welcomeMsg = ":myserver 003 " + this->clients[fd].GetIpAdd() + " :This server was created  " +  this->getTime() +  "\r\n";
-            send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
-        }
+        for (unsigned long i = 0; i < cmd.size(); i++)
+            Handler(fd, cli->GetBuffer());
     }
 }
 
@@ -276,4 +265,52 @@ std::vector<std::string> Server::SplitBuffer(std::string str)
 		vec.push_back(line);
 	}
 	return vec;
+}
+
+void Server::SendMessages(int fd)
+{
+    this->clients[fd].SetLogged(true);
+
+    std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetIpAdd() + " :Welcome to the IRC server " + this->clients[fd].GetNickname() + "\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    welcomeMsg = ":myserver 002 " + this->clients[fd].GetIpAdd() + " :Your host is running IRC Server, running version 1.0 \r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    welcomeMsg = ":myserver 003 " + this->clients[fd].GetIpAdd() + " :This server was created  " + this->getTime() +  "\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    // 004 - Informações do servidor e modos suportados
+    welcomeMsg = ":myserver 004 " + this->clients[fd].GetNickname() + " IRC 1.0 oiw btkl case\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    // 005 - Recursos do servidor suportados
+    // TODO: rever esta mensagem
+    welcomeMsg = ":myserver 005 " + this->clients[fd].GetNickname() + " CHANTYPES=# PREFIX=(o,v)@+ MAXNICKLEN=30 :are supported by this server\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    // 375 - Início do MOTD
+    welcomeMsg = ":myserver 375 " + this->clients[fd].GetNickname() + " :- IRC Message of the day - AMELO\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    // 372 - Linhas do MOTD
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Welcome to our IRC server!\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Please be respectful and follow the rules.\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Have fun chatting!\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+
+    // 376 - Fim do MOTD
+    welcomeMsg = ":myserver 376 " + this->clients[fd].GetNickname() + " :End of MOTD command.\r\n";
+    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+}
+
+bool Server::registered(int fd) 
+{
+    if (GetClient(fd) && !GetClient(fd)->GetNickname().empty() && !GetClient(fd)->GetUsername().empty() && GetClient(fd)->GetNickname() != "*" && GetClient(fd)->GetLoggedIn())
+		return false;
+	return true;
 }

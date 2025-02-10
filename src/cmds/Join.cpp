@@ -1,6 +1,8 @@
-#include "Commands.hpp"
+#include "ACommands.hpp"
 
-// bool Join::JOIN(std::string)
-// {
-//     cout << "entrou join" << endl;
-// }
+void Join::execute(int fd, const std::string &line)
+{
+    cout << fd << endl;
+    cout << line << endl;
+    cout << "entrou join" << endl;
+}

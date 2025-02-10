@@ -23,7 +23,7 @@ class Client {
         const std::string GetNickname() const;
         const std::string GetUsername() const;
         const std::string GetBuffer() const;
-        bool LoggedIn () const;
+        bool GetLoggedIn () const;
 
         void SetFd(int fd);
         void SetNickname(std::string nick);
@@ -31,7 +31,6 @@ class Client {
         void SetBuffer(char *buff);
         void SetIpAdd(std::string ip_add);
         void SetLogged(bool log);
-
 
 		bool operator==(const Client &client);	
 };

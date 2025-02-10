@@ -16,12 +16,13 @@
 #include <bits/stdc++.h> 
 #include <map>
 #include <ctime>
+#include <memory>
 
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
 #include "Parser.hpp"
-#include "Commands.hpp"
+#include "ACommands.hpp"
 
 // typedef std::pair<t_args, std::string> t_input
 

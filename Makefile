@@ -3,7 +3,8 @@ NAME = ircserv
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -I./includes
 RM = rm -rf
 
-SRCS = main.cpp src/Client.cpp src/Server.cpp src/Parser.cpp src/Channel.cpp src/cmds/Join.cpp
+SRCS = main.cpp src/Client.cpp src/Server.cpp src/Parser.cpp src/Channel.cpp src/cmds/Join.cpp\
+	src/cmds/Kick.cpp src/cmds/Mode.cpp src/cmds/Invite.cpp src/cmds/Topic.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

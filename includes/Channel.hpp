@@ -25,8 +25,6 @@ class Channel {
 
 		void AddClient(Client &client);
 		void RemoveClient(int fd);
-
-
 };
 
 #endif
