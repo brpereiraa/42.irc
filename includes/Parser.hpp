@@ -3,6 +3,8 @@
 
 #include "Libraries.hpp"
 
-bool Handler(int fd, std::string line);
+class Server;
+
+void Handler(int fd, std::string line, Server &server);
 
 #endif // !PARSER_HPP

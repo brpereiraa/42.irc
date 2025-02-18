@@ -18,7 +18,7 @@ std::string Server::getTime() const {
     return ss.str();
 }
 
-void    Server::setTime() {
+void Server::setTime() {
     time_t now = std::time(0);
     this->time = localtime(&now);
 }
@@ -59,6 +59,10 @@ bool Server::removeClient(int fd) {
     return (false);
 }
 
+std::map<std::string, Channel> Server::getChannels() const {
+    return this->channels;
+}
+
 void Server::SignalHandler(int signum)
 {
     (void)signum;
@@ -79,21 +83,13 @@ void Server::ClearClients(int fd)
         }
     }
 
-    if (!this->clients.empty()){
-        std::cout << "something: " << it->second.GetUsername() << "  ." << std::endl;
-    }
-
-    while (it != this->clients.end()){
+    while (it != this->clients.end()) {
         if (it->second.GetFd() == fd){
             this->removeClient(it->first);
             break;
         }
 		it++;
 	}
-
-    if (!this->clients.empty()){
-        std::cout << "something: " << it->second.GetUsername() << std::endl;
-    }
 }
 
 //acho que isso pode ir para utils
@@ -122,7 +118,7 @@ Client *Server::GetClient(int fd){
 
 void Server::AcceptNewClient()
 {
-    Client cli("", "");
+    Client cli;
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
@@ -165,7 +161,6 @@ void Server::ReceiveNewData(int fd)
     {
         //associar o buffer ao cliente aqui
         buff[bytes] = '\0';
-        cout << "Client <" << fd << "> data: " << buff << endl;
         //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
         //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
         cli->SetBuffer(buff);
@@ -195,7 +190,7 @@ void Server::ReceiveNewData(int fd)
             SendMessages(fd);
 
         for (unsigned long i = 0; i < cmd.size(); i++)
-            Handler(fd, cli->GetBuffer());
+            Handler(fd, cli->GetBuffer(), *this);
     }
 }
 
