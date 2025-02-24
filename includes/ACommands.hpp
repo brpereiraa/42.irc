@@ -19,6 +19,8 @@ class Join : public ACommands {
     public:
         Join(Server &server);
         void execute(int fd, const std::string& line);
+        void joinChannel(int fd, size_t i, std::vector<std::string> tokens);
+        void createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens);
 };
 
 class Kick : public ACommands {

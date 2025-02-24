@@ -108,11 +108,21 @@ void Server::CloseFds()
     }
 }
 
-Client *Server::GetClient(int fd){
+Client *Server::GetClient(int fd)
+{
 	for (size_t i = 0; i < this->clients.size(); i++){
 		if (this->clients[i].GetFd() == fd)
 			return &this->clients[i];
 	}
+	return NULL;
+}
+
+Channel *Server::GetChannel(std::string topic)
+{
+    std::map<std::string, Channel>::iterator it = this->channels.find(topic);
+    if (it != this->channels.end()) {
+        return &it->second;
+    }
 	return NULL;
 }
 

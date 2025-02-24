@@ -30,6 +30,7 @@ class Server {
         void ParseCmd(std::string &cmd, int fd);
         void SendMessages(int fd);
         Client *GetClient(int fd);
+        Channel *GetChannel(std::string topic);
         std::vector<std::string> SplitBuffer(std::string str);
 
         std::map<int, Client> getClients() const;
