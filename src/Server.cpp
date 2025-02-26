@@ -10,6 +10,11 @@ Server::Server(int port)
     this->port = port;
 }
 
+void Server::sendResponse(std::string response, int fd) {
+    if (send(fd, response.c_str(), response.size(), 0) == -1)
+		std::cerr << "Response send() failed" << std::endl;
+}
+
 std::string Server::getTime() const {
     std::stringstream ss;
 

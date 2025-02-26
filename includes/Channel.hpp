@@ -25,6 +25,7 @@ class Channel {
 
 		void AddClient(Client &client);
 		void RemoveClient(int fd);
+		std::string ClientChannel_list();
 };
 
 #endif

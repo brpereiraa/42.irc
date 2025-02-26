@@ -29,3 +29,21 @@ const std::map<int, Client> Channel::GetClients() const{
 const std::map<int, Client> Channel::GetAdmins() const{
 	return this->admins;
 }
+
+std::string Channel::ClientChannel_list() {
+    std::string list;
+
+    // Iterar sobre os admins e adicionar "@nickname"
+    for (std::map<int, Client>::iterator it = admins.begin(); it != admins.end(); ++it) {
+        if (!list.empty()) list += " "; // Adiciona espaço se não for o primeiro item
+        list += "@" + it->second.GetNickname();
+    }
+
+    // Iterar sobre os clients normais
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (!list.empty()) list += " "; // Adiciona espaço entre admins e clients
+        list += it->second.GetNickname();
+    }
+
+    return list;
+}

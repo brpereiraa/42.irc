@@ -45,6 +45,7 @@ class Server {
         bool removeChannel(std::string name);
         bool registered(int fd);
         
+        void sendResponse(std::string response, int fd);
         static void SignalHandler(int signum);
 
 };
