@@ -128,7 +128,7 @@ Channel *Server::GetChannel(std::string topic)
 
 void Server::AcceptNewClient()
 {
-    Client cli;
+    Client cli("", "");
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);

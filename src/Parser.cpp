@@ -2,17 +2,16 @@
 
 void Handler(int fd, std::string line, Server &server)
 {
-    ACommands *command;
-
-    (void)fd;
+    ACommands *command = NULL;
+    
     size_t pos = line.find('\r');
     if (pos != std::string::npos)
-            line.erase(pos);    
-
+    line.erase(pos);
+    
     std::istringstream iss(line);
     std::string cmds;
     std::getline(iss, cmds, ' ');
-
+    
     if (cmds.empty())
         return;
     if (cmds == "JOIN")
@@ -26,22 +25,22 @@ void Handler(int fd, std::string line, Server &server)
     if (cmds == "MODE")
         command = new Mode(server);
         
-    if (command) {
+    if (command) { 
         command->execute(fd, line);
         delete command;
     }
 }
 
 bool checkname(std::string name)
-    {
-        size_t i = 0;
+{
+    size_t i = 0;
 
-        if (name.empty())
-            return (false);
-        if (name[0] == '#')
-            return (false);
-        for(i = 0; i < name.size(); i++)
-            if(std::isspace(name[i]))
-                return(false);
-        return(true);
-    }
+    if (name.empty())
+        return (false);
+    if (name[0] == '#')
+        return (false);
+    for(i = 0; i < name.size(); i++)
+        if(std::isspace(name[i]))
+            return(false);
+    return(true);
+}
