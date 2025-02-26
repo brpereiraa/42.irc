@@ -4,10 +4,11 @@ bool Server::signal = false;
 
 Server::Server() {}
 
-Server::Server(int port) 
+Server::Server(int port, std::string password) 
 {
     this->server_socket = -1;
     this->port = port;
+    this->password =  password;
 }
 
 std::string Server::getTime() const {
@@ -192,12 +193,24 @@ void Server::ReceiveNewData(int fd)
                 }
                 this->clients[fd].SetUsername(realName);  // Set the real name
                 cout << "Client set real name: " << realName << endl;
+            } else if (it->substr(0, 4) == "PASS") {
+                std::string password = it->substr(5);
+                this->clients[fd].SetPassword(password);
             }
             it++;
         }
         
-        if (registered(fd))
+        if (this->password != "" && this->clients[fd].GetPassword() != this->password) {
+            std::string msg = ":myserver 464 " + this->clients[fd].GetNickname() + " :Password incorrect\r\n";
+            send(fd, msg.c_str(), msg.size(), 0);
+            return ;
+        } else if (this->clients[fd].GetLoggedIn() == false) {
             SendMessages(fd);
+            this->clients[fd].SetLogged(true);
+        }
+
+        // if (registered(fd))
+        //     SendMessages(fd);
 
         for (unsigned long i = 0; i < cmd.size(); i++)
             Handler(fd, cli->GetBuffer(), *this);

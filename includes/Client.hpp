@@ -13,6 +13,7 @@ class Client {
     std::string ip_add;
     std::string nickname;
     std::string username;
+    std::string password;
     //bool isOperator;
 
     public:
@@ -23,11 +24,13 @@ class Client {
         const std::string GetNickname() const;
         const std::string GetUsername() const;
         const std::string GetBuffer() const;
+        const std::string GetPassword() const;
         bool GetLoggedIn () const;
 
         void SetFd(int fd);
         void SetNickname(std::string nick);
         void SetUsername(std::string user);
+        void SetPassword(std::string pass);
         void SetBuffer(char *buff);
         void SetIpAdd(std::string ip_add);
         void SetLogged(bool log);
