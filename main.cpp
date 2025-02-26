@@ -6,7 +6,7 @@
 /*   By: bruno <bruno@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 19:40:11 by mrichard          #+#    #+#             */
-/*   Updated: 2025/01/30 22:43:10 by bruno            ###   ########.fr       */
+/*   Updated: 2025/02/26 22:23:06 by bruno            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    Server ser(atoi(argv[1]));
+    Server ser(atoi(argv[1]), argv[2]);
 	std::cout << "---- SERVER ----" << std::endl;
 	try{
 		signal(SIGINT, Server::SignalHandler); //-> catch the signal (ctrl + c)

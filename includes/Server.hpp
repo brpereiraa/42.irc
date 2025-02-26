@@ -14,13 +14,14 @@ class Server {
     int port;
     int server_socket;
     static bool signal;
+    std::string password;
     std::map<int, Client> clients;
     std::vector<struct pollfd> fds;
     std::map<std::string, Channel> channels;
 
     public:
         Server();
-        Server(int port);
+        Server(int port, std::string password);
 
         void CloseFds();
         void ServerInit();
