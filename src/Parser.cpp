@@ -24,6 +24,8 @@ void Handler(int fd, std::string line, Server &server)
         command = new Topic(server);
     if (cmds == "MODE")
         command = new Mode(server);
+    if (cmds == "PING")
+        command = new Pong(server);
         
     if (command) { 
         command->execute(fd, line);

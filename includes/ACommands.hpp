@@ -47,4 +47,10 @@ class Mode : public ACommands {
         void execute(int fd, const std::string& line);
 };
 
+class Pong : public ACommands {
+    public:
+        Pong(Server &server);
+        void execute (int fd, const std::string &line);
+};
+
 #endif // !ACOMMANDS_HPP
