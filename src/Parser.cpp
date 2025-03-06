@@ -11,9 +11,15 @@ void Handler(int fd, std::string line, Server &server)
     std::istringstream iss(line);
     std::string cmds;
     std::getline(iss, cmds, ' ');
-    
+
     if (cmds.empty())
         return;
+    if (cmds == "USER")
+        command = new User(server);
+    if (cmds == "NICK")
+        command = new Nick(server);
+    if (cmds == "PASS")
+        command = new Pass(server);
     if (cmds == "JOIN")
         command = new Join(server);
     if (cmds == "KICK")

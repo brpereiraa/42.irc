@@ -53,4 +53,25 @@ class Pong : public ACommands {
         void execute (int fd, const std::string &line);
 };
 
+class Nick : public ACommands {
+    public:
+        Nick(Server &server);
+        void execute (int fd, const std::string &line);
+
+};
+
+class User : public ACommands {
+    public:
+        User(Server &server);
+        void execute (int fd, const std::string &line);
+
+};
+
+class Pass : public ACommands {
+    public:
+        Pass(Server &server);
+        void execute (int fd, const std::string &line);
+        
+};
+
 #endif // !ACOMMANDS_HPP

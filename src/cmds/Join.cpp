@@ -57,7 +57,7 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
     Client *newClient = this->server.GetClient(fd);
 
     newChannel.AddClient(*newClient);
-    this->server.addChannel(newChannel);
+    this->server.addChannel(newChannel);    
 
     if (newChannel.GetTopic().empty()) {
         this->server.sendResponse(

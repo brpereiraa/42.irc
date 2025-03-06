@@ -48,6 +48,8 @@ class Server {
         
         void sendResponse(std::string response, int fd);
         static void SignalHandler(int signum);
+        void    HandleRegistration(Client &client, std::string buffer);
+
 
 };
 
