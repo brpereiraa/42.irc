@@ -27,7 +27,8 @@ void Join::execute(int fd, const std::string &line)
     for (size_t i = 1; i <= (tokens.size() - 1); i++) {
         std::map<std::string, Channel> channels = this->server.getChannels();
         if (channels.find(tokens[i]) != channels.end()) {
-            //JoinChannel(fd, i, tokens);
+            joinChannel(fd, i, tokens);
+            cout << "Channel " << tokens[i] << " already exists." << endl;
         }
 		else {
 			createAndJoinChannel(fd, i, tokens);
@@ -45,9 +46,21 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
 
     channel.AddClient(*newClient);
 
-    //enviar mensagem RPL_JOINMSG client e channel como 1 param
-    //topic RPL_TOPIC, if no topic, empty 
-    //list of users RPL_NAMREPLY + RPL_ENDOFNAMES
+    if (channel.GetTopic().empty()) {
+        this->server.sendResponse(
+            RPL_JOINMSG(newClient->GetUsername(), this->server.GetClient(fd)->GetIpAdd(), channel.GetTopic()) + \
+            RPL_NAMREPLY(newClient->GetNickname(), channel.GetTopic(), channel.ClientChannelList()) + \
+            RPL_ENDOFNAMES(newClient->GetNickname(), channel.GetTopic()), fd);
+    }
+    else {
+        this->server.sendResponse(
+            RPL_JOINMSG(newClient->GetUsername(), newClient->GetIpAdd(), channel.GetTopic()) + \
+            RPL_TOPICIS(newClient->GetNickname(), channel.GetTopic(), channel.GetTopic()) + \
+            RPL_NAMREPLY(newClient->GetNickname(), channel.GetTopic(), channel.ClientChannelList()) + \
+            RPL_ENDOFNAMES(newClient->GetNickname(), channel.GetTopic()), fd);
+    }
+
+    channel.SendToAll(RPL_JOINMSG(newClient->GetUsername(), newClient->GetIpAdd(), tokens[i]), fd);
 }
 
 void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens) 
@@ -56,21 +69,11 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
     Channel newChannel(tokens[i]);
     Client *newClient = this->server.GetClient(fd);
 
+    cout << "name: " << newClient->GetNickname() << endl;   
     newChannel.AddClient(*newClient);
     this->server.addChannel(newChannel);    
 
-    if (newChannel.GetTopic().empty()) {
-        this->server.sendResponse(
-            RPL_JOINMSG(this->server.GetClient(fd)->GetUsername(), this->server.GetClient(fd)->GetIpAdd(), newChannel.GetTopic()) + \
-            RPL_NAMREPLY(this->server.GetClient(fd)->GetNickname(), newChannel.GetTopic(), newChannel.ClientChannel_list()) + \
-            RPL_ENDOFNAMES(this->server.GetClient(fd)->GetNickname(), newChannel.GetTopic()), fd);
-    }
-    else {
-        this->server.sendResponse(
-            RPL_JOINMSG(this->server.GetClient(fd)->GetUsername(), this->server.GetClient(fd)->GetIpAdd(), newChannel.GetTopic()) + \
-            RPL_TOPICIS(this->server.GetClient(fd)->GetNickname(), newChannel.GetTopic(), newChannel.GetTopic()) + \
-            RPL_NAMREPLY(this->server.GetClient(fd)->GetNickname(), newChannel.GetTopic(), newChannel.ClientChannel_list()) + \
-            RPL_ENDOFNAMES(this->server.GetClient(fd)->GetNickname(), newChannel.GetTopic()), fd);
-    }
-    //send to all
+    this->server.sendResponse(RPL_JOINMSG(newClient->GetUsername(),newClient->GetIpAdd(),newChannel.GetTopic()) + \
+        RPL_NAMREPLY(newClient->GetNickname(), newChannel.GetTopic(), newChannel.ClientChannelList()) + \
+        RPL_ENDOFNAMES(newClient->GetNickname(), newChannel.GetTopic()), fd);
 }
