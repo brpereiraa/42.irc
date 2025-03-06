@@ -69,6 +69,10 @@ std::map<std::string, Channel> Server::getChannels() const {
     return this->channels;
 }
 
+std::map<int, Client> Server::getClients() const {
+    return this->clients;
+}
+
 void Server::SignalHandler(int signum)
 {
     (void)signum;
@@ -116,10 +120,10 @@ void Server::CloseFds()
 
 Client *Server::GetClient(int fd)
 {
-	for (size_t i = 0; i < this->clients.size(); i++){
-		if (this->clients[i].GetFd() == fd)
-			return &this->clients[i];
-	}
+    std::map<int, Client>::iterator it = this->clients.find(fd);
+    if (it != this->clients.end()) {
+        return &it->second;
+    }
 	return NULL;
 }
 
@@ -185,12 +189,12 @@ void Server::ReceiveNewData(int fd)
         std::vector<std::string>::iterator it = cmd.begin();
 
         while(it != cmd.end()) {
-            if (it->substr(0, 4) == "NICK") {
+            if (it->substr(0, 4) == "NICK" || it->substr(0, 4) == "nick") {
                 std::string nickname = it->substr(5);
                 this->clients[fd].SetNickname(nickname);
                 cout << "Client set nickname: " << nickname << endl;
             }
-            else if (it->substr(0, 4) == "USER") {
+            else if (it->substr(0, 4) == "USER" || it->substr(0, 4) == "user") {
                 std::string realName = it->substr(5); // USER <username> <hostname> <servername> :<real name>
                 size_t colonPos = realName.find(":");
                 if (colonPos != std::string::npos) {

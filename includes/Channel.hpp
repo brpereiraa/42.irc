@@ -25,7 +25,8 @@ class Channel {
 
 		void AddClient(Client &client);
 		void RemoveClient(int fd);
-		std::string ClientChannel_list();
+		std::string ClientChannelList();
+		void SendToAll(std::string reply, int fd);
 };
 
 #endif
