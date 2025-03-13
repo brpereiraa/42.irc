@@ -4,7 +4,7 @@ bool Server::signal = false;
 
 void Server::sendResponse(std::string response, int fd) {
     if (send(fd, response.c_str(), response.size(), 0) == -1)
-		std::cerr << "Response send() failed" << std::endl;
+		std::cerr << "Response send() failed: " << strerror(errno) << std::endl;
 }
 
 void Server::SignalHandler(int signum)
@@ -102,37 +102,37 @@ void Server::ReceiveNewData(int fd)
         cli->SetBuffer(buff);
         cmd = SplitBuffer(cli->GetBuffer());
 
-        std::vector<std::string>::iterator it = cmd.begin();
+        // std::vector<std::string>::iterator it = cmd.begin();
 
-        while(it != cmd.end()) {
-            if (it->substr(0, 4) == "NICK" || it->substr(0, 4) == "nick") {
-                std::string nickname = it->substr(5);
-                this->clients[fd].SetNickname(nickname);
-                cout << "Client set nickname: " << nickname << endl;
-            }
-            else if (it->substr(0, 4) == "USER" || it->substr(0, 4) == "user") {
-                std::string realName = it->substr(5); // USER <username> <hostname> <servername> :<real name>
-                size_t colonPos = realName.find(":");
-                if (colonPos != std::string::npos) {
-                    realName = realName.substr(colonPos + 1); // Remove the "real name" part after the colon
-                }
-                this->clients[fd].SetUsername(realName);  // Set the real name
-                cout << "Client set real name: " << realName << endl;
-            } else if (it->substr(0, 4) == "PASS") {
-                std::string password = it->substr(5);
-                this->clients[fd].SetPassword(password);
-            }
-            it++;
-        }
+        // while(it != cmd.end()) {
+        //     if (it->substr(0, 4) == "NICK" || it->substr(0, 4) == "nick") {
+        //         std::string nickname = it->substr(5);
+        //         this->clients[fd].SetNickname(nickname);
+        //         cout << "Client set nickname: " << nickname << endl;
+        //     }
+        //     else if (it->substr(0, 4) == "USER" || it->substr(0, 4) == "user") {
+        //         std::string realName = it->substr(5); // USER <username> <hostname> <servername> :<real name>
+        //         size_t colonPos = realName.find(":");
+        //         if (colonPos != std::string::npos) {
+        //             realName = realName.substr(colonPos + 1); // Remove the "real name" part after the colon
+        //         }
+        //         this->clients[fd].SetUsername(realName);  // Set the real name
+        //         cout << "Client set real name: " << realName << endl;
+        //     } else if (it->substr(0, 4) == "PASS") {
+        //         std::string password = it->substr(5);
+        //         this->clients[fd].SetPassword(password);
+        //     }
+        //     it++;
+        // }
         
-        if (this->password != "" && this->clients[fd].GetPassword() != this->password) {
-            std::string msg = ":myserver 464 " + this->clients[fd].GetNickname() + " :Password incorrect\r\n";
-            send(fd, msg.c_str(), msg.size(), 0);
-            return ;
-        } else if (this->clients[fd].GetLoggedIn() == false) {
-            SendMessages(fd);
-            this->clients[fd].SetLogged(true);
-        }
+        // if (this->password != "" && this->clients[fd].GetPassword() != this->password) {
+        //     std::string msg = ":myserver 464 " + this->clients[fd].GetNickname() + " :Password incorrect\r\n";
+        //     send(fd, msg.c_str(), msg.size(), 0);
+        //     return ;
+        // } else if (this->clients[fd].GetLoggedIn() == false) {
+        //     SendMessages(fd);
+        //     this->clients[fd].SetLogged(true);
+        // }
 
         // if (registered(fd))
         //     SendMessages(fd);

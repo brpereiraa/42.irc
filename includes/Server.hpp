@@ -34,9 +34,10 @@ class Server {
         Channel *GetChannel(std::string topic);
         std::vector<std::string> SplitBuffer(std::string str);
 
-        std::map<int, Client> getClients() const;
+        std::map<int, Client> &getClients();
         std::map<std::string, Channel> getChannels() const;
         std::string getTime() const;
+        std::string getPassword() const;
 
         void setTime();
 

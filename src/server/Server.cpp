@@ -85,3 +85,11 @@ Channel *Server::GetChannel(std::string topic) {
 std::map<std::string, Channel> Server::getChannels() const {
     return this->channels;
 }
+
+std::map<int, Client> &Server::getClients() {
+    return this->clients;
+}
+
+std::string Server::getPassword() const {
+    return this->password;
+}
