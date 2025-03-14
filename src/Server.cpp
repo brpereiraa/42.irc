@@ -3,8 +3,11 @@
 bool Server::signal = false;
 
 void Server::sendResponse(std::string response, int fd) {
-    if (send(fd, response.c_str(), response.size(), 0) == -1)
-		std::cerr << "Response send() failed: " << strerror(errno) << std::endl;
+    // Convert std::string to const char* for send() function
+    const char* msg = response.c_str();
+    if (send(fd, msg, response.size(), 0) == -1) {
+        std::cerr << "Response send() failed: " << strerror(errno) << std::endl;
+    }
 }
 
 void Server::SignalHandler(int signum)
@@ -193,6 +196,8 @@ void Server::ServerInit()
         }
     }
     CloseFds();
+    closeClientConnections();
+    cleanupChannels();
 }
 
 std::vector<std::string> Server::SplitBuffer(std::string str)
@@ -256,4 +261,24 @@ bool Server::registered(int fd)
     if (GetClient(fd) && !GetClient(fd)->GetNickname().empty() && !GetClient(fd)->GetUsername().empty() && GetClient(fd)->GetNickname() != "*" && GetClient(fd)->GetLoggedIn())
 		return false;
 	return true;
+}
+
+void Server::closeClientConnections() 
+{
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        // Send final shutdown message
+        std::string message = "Server is shutting down, goodbye!";
+        send(it->second.GetFd(), message.c_str(), message.size(), 0);
+        
+        // Close the client socket
+        close(it->second.GetFd());
+    }
+}
+
+void Server::cleanupChannels() 
+{
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        it->second.ClearClients();
+    }
+    channels.clear();
 }

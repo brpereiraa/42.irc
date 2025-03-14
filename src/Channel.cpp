@@ -48,22 +48,43 @@ std::string Channel::ClientChannelList() {
     return list;
 }
 
-void Channel::SendToAll(std::string reply, int fd) {
-    // Iterar sobre os admins
-    for (std::map<int, Client>::iterator it = admins.begin(); it != admins.end(); ++it) {
-        if (it->second.GetFd() != fd) {
-            if (send(it->second.GetFd(), reply.c_str(), reply.size(), 0) == -1) {
-                std::cerr << "send() failed" << std::endl;
-            }
+void Channel::SendToAll(const std::string &reply, int senderFd, Server &server) {
+    // Send message to all admins
+    for (std::map<int, Client>::iterator it = this->admins.begin(); it != this->admins.end(); ++it) {
+        if (it->second.GetFd() != senderFd) {
+            server.sendResponse(reply, it->second.GetFd());
         }
     }
 
-    // Iterar sobre os clients
-    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if (it->second.GetFd() != fd) {
-            if (send(it->second.GetFd(), reply.c_str(), reply.size(), 0) == -1) {
-                std::cerr << "send() failed" << std::endl;
-            }
+    // Send message to all regular clients
+    for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
+        if (it->second.GetFd() != senderFd) {
+            server.sendResponse(reply, it->second.GetFd());
         }
     }
-} 
+}
+
+void Channel::ClearClients() 
+{
+    // Iterate through the clients map and close each connection
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        int clientFd = it->second.GetFd();
+        
+        // Send a final message to the client before removing them
+        std::string message = "You are being disconnected from the channel.";
+        send(clientFd, message.c_str(), message.size(), 0);
+        
+        // Close the client connection (if needed)
+        close(clientFd);
+    }
+
+    // Clear the clients map
+    clients.clear();
+
+    // Optionally clear the admins if needed
+    for (std::map<int, Client>::iterator it = admins.begin(); it != admins.end(); ++it) {
+        int adminFd = it->second.GetFd();
+        close(adminFd);  // Close the admin connection if necessary
+    }
+    admins.clear(); // Clear the admin map
+}

@@ -49,9 +49,9 @@ class Server {
         
         void sendResponse(std::string response, int fd);
         static void SignalHandler(int signum);
-        void    HandleRegistration(Client &client, std::string buffer);
-
-
+        void HandleRegistration(Client &client, std::string buffer);
+        void closeClientConnections();
+        void cleanupChannels();
 };
 
 #endif // !SERVER_HPP

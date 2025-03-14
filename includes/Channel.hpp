@@ -3,6 +3,8 @@
 
 #include "Libraries.hpp"
 
+class Server;
+
 class Channel {
 	private:
 		std::string topic;
@@ -26,7 +28,8 @@ class Channel {
 		void AddClient(Client &client);
 		void RemoveClient(int fd);
 		std::string ClientChannelList();
-		void SendToAll(std::string reply, int fd);
+		void SendToAll(const std::string &reply, int fd, Server &server);
+		void ClearClients();
 };
 
 #endif
