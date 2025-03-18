@@ -57,7 +57,7 @@ void Server::CloseFds()
 
 void Server::AcceptNewClient()
 {
-    Client cli("", "");
+    Client cli;
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
@@ -78,7 +78,8 @@ void Server::AcceptNewClient()
     this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
-    cout << "Client <" << incofd << "> connected" << endl;
+    if (registered(incofd))
+        SendMessages(incofd);
 }
 
 void Server::ReceiveNewData(int fd)
@@ -136,9 +137,6 @@ void Server::ReceiveNewData(int fd)
         //     SendMessages(fd);
         //     this->clients[fd].SetLogged(true);
         // }
-
-        if (registered(fd))
-            SendMessages(fd);
 
         for (unsigned long i = 0; i < cmd.size(); i++)
             Handler(fd, cli->GetBuffer(), *this);

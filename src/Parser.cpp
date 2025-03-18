@@ -32,6 +32,8 @@ void Handler(int fd, std::string line, Server &server)
         command = new Mode(server);
     if (cmds == "PING")
         command = new Pong(server);
+    if (cmds == "PRIVMSG")
+        command = new Privmsg(server);
         
     if (command) { 
         command->execute(fd, line);

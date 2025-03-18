@@ -23,6 +23,12 @@ class Join : public ACommands {
         void createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens);
 };
 
+class Privmsg : public ACommands {
+    public:
+        Privmsg(Server &server);
+        void execute(int fd, const std::string& line);
+};
+
 class Kick : public ACommands {
     public:
         Kick(Server &server);

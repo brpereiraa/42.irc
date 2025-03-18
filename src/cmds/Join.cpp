@@ -26,7 +26,6 @@ void Join::execute(int fd, const std::string &line)
         }
 		else {
 			createAndJoinChannel(fd, i, tokens);
-            //criar novo channel com topic tokens[i] -> add channel server -> add client no channel
             cout << "Channel " << tokens[i] << " does not exist." << endl;
         }
     }
@@ -38,11 +37,11 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
     Channel *channel = this->server.GetChannel(tokens[i]);
 
     if (!channel) {
-        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), tokens[i]), fd);  // Enviar erro se o canal não existir
-        return; // Ensure channel exists
+        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), tokens[i]), fd);
+        return;
     }
 
-    channel->AddClient(*newClient); // Modify the actual channel in server
+    channel->AddClient(*newClient);
 
     std::string joinMsg = RPL_JOINMSG(newClient->GetNickname(), newClient->GetUsername(), tokens[i]);
     std::string nameReply = RPL_NAMREPLY(newClient->GetNickname(), tokens[i], channel->ClientChannelList());
@@ -54,7 +53,7 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
         this->server.sendResponse(joinMsg + nameReply + endNames, fd);
     }
 
-    channel->SendToAll(joinMsg, fd, this->server); // Send JOIN message to all users
+    channel->SendToAll(joinMsg, fd, this->server);
 }
 
 void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens) 
@@ -67,14 +66,13 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
         channelName = "#" + channelName;
     }
 
-    // Create and add the channel to the server
     Channel newChannel(channelName);
     newChannel.AddClient(*newClient);
     this->server.addChannel(newChannel);
 
     Channel *createdChannel = this->server.GetChannel(channelName);
     if (!createdChannel) {
-        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), channelName), fd);  // Enviar erro se não conseguir criar o canal
+        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), channelName), fd);
         return;
     }
 
