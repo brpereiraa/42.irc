@@ -25,18 +25,21 @@
 #include "ACommands.hpp"
 
 #define CRLF "\r\n"
-#define RPL_CONNECTED(nickname) (": 001 " + nickname + " : Welcome to the IRC server!" + CRLF)
+
 #define RPL_JOINMSG(nickname, username, channelname) \
-    (":" + nickname + "!" + username + " JOIN #" + channelname + CRLF)
+    (":" + nickname + "!" + username + " JOIN " + channelname + CRLF)
 
 #define RPL_NAMREPLY(nickname, channelname, clientslist) \
-    (": 353 " + nickname + " = #" + channelname + " :" + clientslist + CRLF)
+    (":myserver 353 " + nickname + " = " + channelname + " :" + clientslist + CRLF)
 
 #define RPL_ENDOFNAMES(nickname, channelname) \
-    (": 366 " + nickname + " #" + channelname + " :END of /NAMES list" + CRLF)
+    (":myserver 366 " + nickname + " " + channelname + " :End of /NAMES list" + CRLF)
 
 #define RPL_TOPICIS(nickname, channelname, topic) \
-    (": 332 " + nickname + " #" + channelname + " :" + topic + CRLF)
+    (":myserver 332 " + nickname + " " + channelname + " :" + topic + CRLF)
+
+#define ERR_NOSUCHCHANNEL(nickname, channel) \
+    (":myserver 403 " + nickname + " " + channel + " :No such channel" + CRLF)
 
 // typedef std::pair<t_args, std::string> t_input
 

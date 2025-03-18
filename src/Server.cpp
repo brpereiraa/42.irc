@@ -137,8 +137,8 @@ void Server::ReceiveNewData(int fd)
         //     this->clients[fd].SetLogged(true);
         // }
 
-        // if (registered(fd))
-        //     SendMessages(fd);
+        if (registered(fd))
+            SendMessages(fd);
 
         for (unsigned long i = 0; i < cmd.size(); i++)
             Handler(fd, cli->GetBuffer(), *this);
@@ -219,41 +219,43 @@ void Server::SendMessages(int fd)
 {
     this->clients[fd].SetLogged(true);
 
-    std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetIpAdd() + " :Welcome to the IRC server " + this->clients[fd].GetNickname() + "\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 001 - Welcome message
+    std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetNickname() + " :Welcome to the IRC server!" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    welcomeMsg = ":myserver 002 " + this->clients[fd].GetIpAdd() + " :Your host is running IRC Server, running version 1.0 \r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 002 - Host info
+    welcomeMsg = ":myserver 002 " + this->clients[fd].GetNickname() + " :Your host is running IRC Server, running version 1.0" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    welcomeMsg = ":myserver 003 " + this->clients[fd].GetIpAdd() + " :This server was created  " + this->getTime() +  "\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 003 - Server creation time
+    welcomeMsg = ":myserver 003 " + this->clients[fd].GetNickname() + " :This server was created " + this->getTime() + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    // 004 - Informações do servidor e modos suportados
-    welcomeMsg = ":myserver 004 " + this->clients[fd].GetNickname() + " IRC 1.0 oiw btkl case\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 004 - Server information and supported modes
+    welcomeMsg = ":myserver 004 " + this->clients[fd].GetNickname() + " myserver 1.0 oiw btkl" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    // 005 - Recursos do servidor suportados
-    // TODO: rever esta mensagem
-    welcomeMsg = ":myserver 005 " + this->clients[fd].GetNickname() + " CHANTYPES=# PREFIX=(o,v)@+ MAXNICKLEN=30 :are supported by this server\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 005 - Supported server features
+    welcomeMsg = ":myserver 005 " + this->clients[fd].GetNickname() + " CHANTYPES=# PREFIX=(o,v)@+ MAXNICKLEN=30 :are supported by this server" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    // 375 - Início do MOTD
-    welcomeMsg = ":myserver 375 " + this->clients[fd].GetNickname() + " :- IRC Message of the day - AMELO\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 375 - Start of MOTD
+    welcomeMsg = ":myserver 375 " + this->clients[fd].GetNickname() + " :- IRC Message of the day - AMELO" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    // 372 - Linhas do MOTD
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Welcome to our IRC server!\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 372 - MOTD lines
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Welcome to our IRC server!" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Please be respectful and follow the rules.\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Please be respectful and follow the rules." + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Have fun chatting!\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Have fun chatting!" + CRLF;
+    sendResponse(welcomeMsg, fd);
 
-    // 376 - Fim do MOTD
-    welcomeMsg = ":myserver 376 " + this->clients[fd].GetNickname() + " :End of MOTD command.\r\n";
-    send(this->clients[fd].GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+    // 376 - End of MOTD
+    welcomeMsg = ":myserver 376 " + this->clients[fd].GetNickname() + " :End of MOTD command." + CRLF;
+    sendResponse(welcomeMsg, fd);
 }
 
 bool Server::registered(int fd) 
