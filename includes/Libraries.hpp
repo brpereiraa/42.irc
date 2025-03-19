@@ -41,6 +41,9 @@
 #define ERR_NOSUCHCHANNEL(nickname, channel) \
     (":myserver 403 " + nickname + " " + channel + " :No such channel" + CRLF)
 
+#define ERR_TOOMANYCHANNELS(nickname, channel) \
+    (":myserver 405 " + nickname + " " + channel + " :You have joined too many channels" + CRLF)
+
 // typedef std::pair<t_args, std::string> t_input
 
 inline void ThrowException(std::string msg)

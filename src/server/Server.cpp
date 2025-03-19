@@ -74,6 +74,15 @@ Client *Server::GetClient(int fd) {
 	return NULL;
 }
 
+Client *Server::GetClientByNickname(std::string &nick) {
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (it->second.GetNickname() == nick) {
+            return &it->second;
+        }
+    }
+    return NULL;
+}
+
 Channel *Server::GetChannel(std::string topic) {
     std::map<std::string, Channel>::iterator it = this->channels.find(topic);
     if (it != this->channels.end()) {
@@ -92,4 +101,15 @@ std::map<int, Client> &Server::getClients() {
 
 std::string Server::getPassword() const {
     return this->password;
+}
+
+int Server::GetClientChannelCount(Client *client) {
+    int count = 0;
+    for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
+        std::string nickname = client->GetNickname();
+        if (it->second.GetClientInChannel(nickname)) {
+            count++;
+        }
+    }
+    return count;
 }

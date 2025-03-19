@@ -7,10 +7,6 @@ Privmsg::Privmsg(Server &server) : ACommands(server)
 
 void Privmsg::execute(int fd, const std::string &line)
 {
-    std::cout << fd << std::endl;
-    std::cout << line << std::endl;
-    std::cout << "entrou no Privmsg" << std::endl;
-
     std::vector<std::string> tokens;
     std::istringstream ss(line);
     std::string token;
@@ -19,33 +15,39 @@ void Privmsg::execute(int fd, const std::string &line)
         tokens.push_back(token);
     }
 
-    // Verifica se há ao menos 2 tokens (destinatário e mensagem)
-    if (tokens.size() < 2) {
-        std::cerr << "Erro: Formato inválido para PRIVMSG" << std::endl;
+    //TODO: criar func de parser dos comandos e check de erros possiveis
+    if (tokens.size() < 3) {  // Needs at least: "PRIVMSG <target> <message>"
+        std::cerr << "Error: Invalid PRIVMSG format" << std::endl;
         return;
     }
 
-    std::string target = tokens[1];  // Destinatário (usuário ou canal)
-    std::string message = line.substr(line.find(" ", tokens[0].length()) + 1);  // Mensagem após o primeiro espaço
+    std::string target = tokens[1];  // Target (channel or user)
+    std::string message = line.substr(line.find(" :", tokens[0].length()) + 2);
 
-    // Se o destinatário for um canal, enviamos a mensagem para todos os membros do canal
+    Client* sender = this->server.GetClient(fd);
+    if (!sender) {
+        std::cerr << "Error: Sender not found" << std::endl;
+        return;
+    }
+
+    std::string response = ":" + sender->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+
+    // Check if the message is for a channel
     if (target[0] == '#') {
         Channel* channel = this->server.GetChannel(target);
         if (channel) {
-            std::string response = ":" + this->server.GetClient(fd)->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
-            channel->SendToAll(response, fd, this->server);  // Envia para todos no canal
+            channel->SendToAll(response, fd, this->server);
         } else {
-            std::cerr << "Erro: Canal não encontrado!" << std::endl;
+            this->server.sendResponse("Error: Channel not found\r\n", fd);
         }
     }
-    // Se o destinatário for um usuário, enviamos a mensagem diretamente para o usuário
+    // Otherwise, it's a private message to another user
     else {
-        Client* client = this->server.GetClient(fd);
-        if (client) {
-            std::string response = ":" + this->server.GetClient(fd)->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
-            this->server.sendResponse(response, client->GetFd());  // Envia para o usuário
+        Client* recipient = this->server.GetClientByNickname(target);
+        if (recipient) {
+            this->server.sendResponse(response, recipient->GetFd());
         } else {
-            std::cerr << "Erro: Usuário não encontrado!" << std::endl;
+            this->server.sendResponse("Error: User not found\r\n", fd);
         }
     }
 }

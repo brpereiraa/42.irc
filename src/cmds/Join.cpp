@@ -5,6 +5,56 @@ Join::Join(Server &server) : ACommands(server)
     this->server = server;
 }
 
+bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, Client *newClient, Channel *channel)
+{
+    cout << "count channels by client: " << this->server.GetClientChannelCount(newClient) << endl;
+
+    if (!newClient) {
+        return true;
+    }
+
+    if (!channel) {
+        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), tokens[i]), fd);
+        return true;
+    }
+
+    //TODO: not sending any message
+    // Check if the client is already in 10 channels
+    if (this->server.GetClientChannelCount(newClient) >= 10) {
+        this->server.sendResponse(ERR_TOOMANYCHANNELS(newClient->GetNickname(), channel->GetTopic()), fd);
+        //return true;
+    }
+
+    // Ensure the channel name has the '#' prefix
+    // if (channelName[0] != '#') {
+    //     channelName = "#" + channelName;
+    // }
+
+    // // Create and add the channel to the server
+    // Channel newChannel(channelName);
+    
+    // // If the channel requires a password and the user didn't provide one
+    // if (!newChannel.GetPassword().empty() && (tokens.size() <= i + 1 || newChannel.GetPassword() != tokens[i + 1])) {
+    //     if (!this->server.IsInvited(newClient, channelName, 0)) {
+    //         this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channelName), fd);
+    //         return;
+    //     }
+    // }
+
+    // // If the channel is invite-only and the user is not invited
+    // if (newChannel.GetInvitOnly() && !this->server.IsInvited(newClient, channelName, 1)) {
+    //     this->server.sendResponse(ERR_INVITEONLYCHAN(newClient->GetNickname(), channelName), fd);
+    //     return;
+    // }
+
+    // // If the channel is full
+    // if (newChannel.GetLimit() && newChannel.GetClientsNumber() >= newChannel.GetLimit()) {
+    //     this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channelName), fd);
+    //     return;
+    // }
+    return false;
+}
+
 void Join::execute(int fd, const std::string &line)
 {
     std::vector<std::string> tokens;
@@ -36,10 +86,8 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
     Client *newClient = this->server.GetClient(fd);
     Channel *channel = this->server.GetChannel(tokens[i]);
 
-    if (!channel) {
-        this->server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), tokens[i]), fd);
+    if (initialChecksJoin(fd, i, tokens, newClient, channel))
         return;
-    }
 
     channel->AddClient(*newClient);
 
@@ -67,6 +115,10 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
     }
 
     Channel newChannel(channelName);
+
+    if (initialChecksJoin(fd, i, tokens, newClient, &newChannel))
+        return;
+
     newChannel.AddClient(*newClient);
     this->server.addChannel(newChannel);
 

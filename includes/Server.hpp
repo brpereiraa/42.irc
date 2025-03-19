@@ -31,6 +31,7 @@ class Server {
         void ParseCmd(std::string &cmd, int fd);
         void SendMessages(int fd);
         Client *GetClient(int fd);
+        Client *GetClientByNickname(std::string &nick);
         Channel *GetChannel(std::string topic);
         std::vector<std::string> SplitBuffer(std::string str);
 
@@ -52,6 +53,7 @@ class Server {
         void HandleRegistration(Client &client, std::string buffer);
         void closeClientConnections();
         void cleanupChannels();
+        int GetClientChannelCount(Client *client);
 };
 
 #endif // !SERVER_HPP

@@ -30,6 +30,7 @@ class Channel {
 		std::string ClientChannelList();
 		void SendToAll(const std::string &reply, int fd, Server &server);
 		void ClearClients();
+		bool GetClientInChannel(std::string &nickname);
 };
 
 #endif
