@@ -106,8 +106,9 @@ void Server::ReceiveNewData(int fd)
         cli->SetBuffer(buff);
         cmd = SplitBuffer(cli->GetBuffer());
 
-        for (unsigned long i = 0; i < cmd.size(); i++)
-            Handler(fd, cli->GetBuffer(), *this);
+        for (size_t i = 0; i < cmd.size(); i++) {
+            Handler(fd, cmd[i], *this);
+        }
 
         //Check auth.
         if ( !this->clients[fd].GetNickname().empty() && !this->clients[fd].GetUsername().empty() 
