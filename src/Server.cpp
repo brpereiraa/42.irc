@@ -78,8 +78,8 @@ void Server::AcceptNewClient()
     this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
-    if (registered(incofd))
-        SendMessages(incofd);
+    // if (registered(incofd))
+    //     SendMessages(incofd);
 }
 
 void Server::ReceiveNewData(int fd)
@@ -106,40 +106,23 @@ void Server::ReceiveNewData(int fd)
         cli->SetBuffer(buff);
         cmd = SplitBuffer(cli->GetBuffer());
 
-        // std::vector<std::string>::iterator it = cmd.begin();
-
-        // while(it != cmd.end()) {
-        //     if (it->substr(0, 4) == "NICK" || it->substr(0, 4) == "nick") {
-        //         std::string nickname = it->substr(5);
-        //         this->clients[fd].SetNickname(nickname);
-        //         cout << "Client set nickname: " << nickname << endl;
-        //     }
-        //     else if (it->substr(0, 4) == "USER" || it->substr(0, 4) == "user") {
-        //         std::string realName = it->substr(5); // USER <username> <hostname> <servername> :<real name>
-        //         size_t colonPos = realName.find(":");
-        //         if (colonPos != std::string::npos) {
-        //             realName = realName.substr(colonPos + 1); // Remove the "real name" part after the colon
-        //         }
-        //         this->clients[fd].SetUsername(realName);  // Set the real name
-        //         cout << "Client set real name: " << realName << endl;
-        //     } else if (it->substr(0, 4) == "PASS") {
-        //         std::string password = it->substr(5);
-        //         this->clients[fd].SetPassword(password);
-        //     }
-        //     it++;
-        // }
-        
-        // if (this->password != "" && this->clients[fd].GetPassword() != this->password) {
-        //     std::string msg = ":myserver 464 " + this->clients[fd].GetNickname() + " :Password incorrect\r\n";
-        //     send(fd, msg.c_str(), msg.size(), 0);
-        //     return ;
-        // } else if (this->clients[fd].GetLoggedIn() == false) {
-        //     SendMessages(fd);
-        //     this->clients[fd].SetLogged(true);
-        // }
-
         for (unsigned long i = 0; i < cmd.size(); i++)
             Handler(fd, cli->GetBuffer(), *this);
+
+        //Check auth.
+        if ( !this->clients[fd].GetNickname().empty() && !this->clients[fd].GetUsername().empty() 
+                && !this->clients[fd].GetLoggedIn() ){
+    
+                    //Server without password
+                    if (this->getPassword().empty())
+                        this->SendMessages(fd);
+    
+                    //Server with password
+                    else if (this->clients[fd].GetPassword() == this->getPassword())
+                        this->SendMessages(fd);
+    
+        }
+
     }
 }
 

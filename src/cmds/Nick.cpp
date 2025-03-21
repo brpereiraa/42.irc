@@ -18,31 +18,45 @@ void Nick::execute(int fd, const std::string &line){
 	client = it->second;
 	it = server.getClients().begin();
 	i = -1;
+
+	//Check auth handling
+	if (server.getPassword() != "" && client.GetPassword() != server.getPassword()) {
+		server.sendResponse(":myserver 464 " + client.GetNickname() + " :Password incorrect\r\n", fd);
+		return ;
+	}
 	
 	while (stream >> word) {
+
 		++i;
 		if (i == 2) break;
+
 		if (i == 1) {
-			if(word[0] == ':')
-				std::cout << "Invalid nick" << std::endl;
+
+			//Invalid Nickname
+			if(word[0] == ':'){
+				server.sendResponse(":myserver 432 " + client.GetNickname() + " :Erroneous nickname\r\n", fd);
+				return ;
+			}
+
+			//Nickname in use
 			while (it != server.getClients().end()) {
 				if (it->second.GetNickname() == word && fd != it->second.GetFd()) {
 					server.sendResponse(":myserver 433 " + client.GetNickname() + " :Nickname given is already in use.\r\n", fd);
+					return ;
 				}
 				it++;
 			}
+
 			it = server.getClients().find(fd);
 			if (it == server.getClients().end())
 				return ;
 			it->second.SetNickname(word);
 			server.sendResponse(":myserver 001 " + word + " :Nickname changed successfully.\r\n", fd);
+
 		}
 	}
+
+	//Missing argument
 	if (i == 0)
 		server.sendResponse(":myserver 431 " +  client.GetNickname() + " : No nickname has been provided.\r\n", fd);
 }
-
-
-// void Nick::CheckExistx(std::string name){
-
-// }
