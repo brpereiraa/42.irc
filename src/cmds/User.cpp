@@ -18,7 +18,9 @@ void User::execute(int fd, const std::string &line){
 
 	//Check auth handling
 	if (server.getPassword() != "" && client.GetPassword() != server.getPassword()) {
-		server.sendResponse(":myserver 464 " + client.GetNickname() + " :Password incorrect\r\n", fd);
+		server.sendResponse(":myserver 464 " 
+			+ (!client.GetNickname().empty() ? client.GetNickname() : "*")  
+			+ " :Password incorrect\r\n", fd);
 		return ;
 	}
 
@@ -32,7 +34,7 @@ void User::execute(int fd, const std::string &line){
 				return ;
 			it->second.SetUsername(word);
 		}
-		
+
 	}
 
 	//Missing argument

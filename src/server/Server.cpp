@@ -91,6 +91,17 @@ Channel *Server::GetChannel(std::string topic) {
 	return NULL;
 }
 
+Channel *Server::GetChannelByName(std::string name) {
+    std::map<std::string, Channel>::iterator it = this->channels.begin();
+
+    while (it != this->channels.end()){
+        if (name == it->second.GetTopic())
+            return &it->second;
+    }
+
+    return (NULL);
+}
+
 std::map<std::string, Channel> Server::getChannels() const {
     return this->channels;
 }

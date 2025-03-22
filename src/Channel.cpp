@@ -33,6 +33,7 @@ const std::map<int, Client> Channel::GetAdmins() const{
 std::string Channel::ClientChannelList() {
     std::string list;
 
+
     // Iterar sobre os admins e adicionar "@nickname"
     for (std::map<int, Client>::iterator it = admins.begin(); it != admins.end(); ++it) {
         if (!list.empty()) list += " "; // Adiciona espaço se não for o primeiro item
