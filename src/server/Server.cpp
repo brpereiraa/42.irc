@@ -97,6 +97,7 @@ Channel *Server::GetChannelByName(std::string name) {
     while (it != this->channels.end()){
         if (name == it->second.GetTopic())
             return &it->second;
+        it++;
     }
 
     return (NULL);

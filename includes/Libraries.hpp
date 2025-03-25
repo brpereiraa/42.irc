@@ -44,6 +44,9 @@
 #define ERR_TOOMANYCHANNELS(nickname, channel) \
     (":myserver 405 " + nickname + " " + channel + " :You have joined too many channels" + CRLF)
 
+#define RED "\033[0;31m"
+#define RESET "\033[0m"
+
 // typedef std::pair<t_args, std::string> t_input
 
 inline void ThrowException(std::string msg)

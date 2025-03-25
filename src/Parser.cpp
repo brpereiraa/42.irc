@@ -12,27 +12,31 @@ void Handler(int fd, std::string line, Server &server)
     std::string cmds;
     std::getline(iss, cmds, ' ');
 
+    std::cout << 
+        (!server.GetClient(fd)->GetNickname().empty() ? server.GetClient(fd)->GetNickname() : "*") << 
+        ": " << RED << line << RESET << std::endl;
+
     if (cmds.empty())
         return;
-    if (cmds == "USER")
+    else if (cmds == "USER")
         command = new User(server);
-    if (cmds == "NICK")
+    else if (cmds == "NICK")
         command = new Nick(server);
-    if (cmds == "PASS")
+    else if (cmds == "PASS")
         command = new Pass(server);
-    if (cmds == "JOIN")
+    else if (cmds == "JOIN")
         command = new Join(server);
-    if (cmds == "KICK")
+    else if (cmds == "KICK")
         command = new Kick(server);
-    if (cmds == "INVITE")
+    else if (cmds == "INVITE")
         command = new Invite(server);
-    if (cmds == "TOPIC")
+    else if (cmds == "TOPIC")
         command = new Topic(server);
-    if (cmds == "MODE")
+    else if (cmds == "MODE")
         command = new Mode(server);
-    if (cmds == "PING")
+    else if (cmds == "PING")
         command = new Pong(server);
-    if (cmds == "PRIVMSG")
+    else if (cmds == "PRIVMSG")
         command = new Privmsg(server);
         
     if (command) { 
