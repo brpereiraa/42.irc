@@ -58,25 +58,34 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
 void Join::execute(int fd, const std::string &line)
 {
     std::vector<std::string> tokens;
+    std::vector<std::string> channelName;
     std::istringstream ssjoin(line);
     std::string token;
 
     while (std::getline(ssjoin, token, ' ')) {
+        cout << token << endl;
         tokens.push_back(token);
+    }
+
+    std::istringstream iss(token);
+    std::string cmds;
+    while (std::getline(iss, cmds, ',')) {
+        channelName.push_back(cmds);
     }
 
     if ((tokens.size() - 1) > 10)
         ThrowException("ERR_TOOMANYTARGETS (407)");
 
-    for (size_t i = 1; i <= (tokens.size() - 1); i++) {
+    for (size_t i = 0; i <= (channelName.size() - 1); i++) {
         std::map<std::string, Channel> channels = this->server.getChannels();
-        if (channels.find(tokens[i]) != channels.end()) {
-            joinChannel(fd, i, tokens);
-            cout << "Channel " << tokens[i] << " already exists." << endl;
+        if (channels.find(channelName[i]) != channels.end()) {
+            cout << "channel name i: " << channelName[i] << endl;
+            joinChannel(fd, i, channelName);
+            cout << "Channel " << channelName[i] << " already exists." << endl;
         }
 		else {
-			createAndJoinChannel(fd, i, tokens);
-            cout << "Channel " << tokens[i] << " does not exist." << endl;
+			createAndJoinChannel(fd, i, channelName);
+            cout << "Channel " << channelName[i] << " does not exist." << endl;
         }
     }
 }
@@ -85,6 +94,7 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
 {
     Client *newClient = this->server.GetClient(fd);
     Channel *channel = this->server.GetChannel(tokens[i]);
+
 
     if (initialChecksJoin(fd, i, tokens, newClient, channel))
         return;
@@ -106,8 +116,10 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
 
 void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens) 
 {
+    cout << "ENTROU CREATE" << endl;
     Client *newClient = this->server.GetClient(fd);
     std::string channelName = tokens[i];
+    cout << "CHANNELNAME[0]: " << channelName << endl;
 
     // Ensure the channel name has the '#' prefix (if needed)
     if (channelName[0] != '#') {

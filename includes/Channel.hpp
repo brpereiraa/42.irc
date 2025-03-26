@@ -7,8 +7,8 @@ class Server;
 
 class Channel {
 	private:
-		int usr_limit;
-		bool inv_only;
+		// int usr_limit;
+		// 	bool inv_only;
 		std::string name;
 		std::string topic;
 		std::string password;
