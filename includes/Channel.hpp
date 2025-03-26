@@ -7,6 +7,9 @@ class Server;
 
 class Channel {
 	private:
+		int usr_limit;
+		bool inv_only;
+		std::string name;
 		std::string topic;
 		std::string password;
 		std::map<int, Client> admins;

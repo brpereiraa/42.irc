@@ -52,6 +52,7 @@ class Mode : public ACommands {
     public:
         Mode(Server &server);
         void execute(int fd, const std::string& line);
+        void channel(int fd, const std::string &target, std::string &modes, std::vector<std::string> args);
 };
 
 class Pong : public ACommands {
