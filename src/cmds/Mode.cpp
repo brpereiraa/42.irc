@@ -46,10 +46,6 @@ void Mode::execute(int fd, const std::string &line)
 
 void Mode::channel(int fd, const std::string &target, std::string &modes, std::vector<std::string> args)
 {
-    (void) args;
-    (void) target;
-    (void) fd;
-
     bool value;
 
     std::string::iterator str_it = modes.begin();
@@ -58,17 +54,9 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
     Client *client = this->server.GetClient(fd);
     value = true;
 
-    //Check if it's to remove or add
-    if (*str_it == '-'){
-        value = false; 
-        str_it++;
-    }
-
-    if (*str_it == '+')
-        str_it++;
-
-    //handle modes
+    //Handle modes
     while (str_it != modes.end()){
+
         //Handle set invite positive/negative
         if (*str_it == 'i'){
             if (!value)
@@ -103,15 +91,42 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
         }
         else if (*str_it == 'o')
             ;
+
+        //Handle max number of users per channel
         else if (*str_it == 'l')
-            ;
-        else 
-            ;
+        {
+            //Set limit to -1 in case of false
+            if (!value){
+                this->server.GetChannel(target)->SetLimit(-1);
+                arg_it++;
+            }
+
+            //Set limit to whatever argument
+            else {
+                //Check if there is argument for password
+                if (arg_it == args.end()){
+                    this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                    str_it++;
+                    continue ;
+                }
+
+                this->server.GetChannel(target)->SetLimit(std::stoi(*arg_it));
+                arg_it++;
+            }
+
+        }
+
+        //Check if it's invalid characters/mode
+        else if (*str_it != '+')
+            this->server.sendResponse(":myserver 501 " + client->GetNickname() + " :Unknown MODE flag\r\n", fd); 
+        
+        //Reset to true after every character
+        value = true;
+
+        //Change to false if its minus
+        if (*str_it == '-')
+            value = false; 
+
         str_it++;
     }
 }
-
-// void Mode::user(int fd, const std::string &targer, std::string &modes, std::vector<std::string> args)
-// {
-
-// }

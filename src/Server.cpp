@@ -78,15 +78,13 @@ void Server::AcceptNewClient()
     this->addClient(cli); //adiciona novo cliente a lista !!!
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
-    // if (registered(incofd))
-    //     SendMessages(incofd);
 }
 
 void Server::ReceiveNewData(int fd)
 {
     char buff[1024]; //para os dados recebidos
     memset(buff, 0, sizeof(buff)); //limpar o buffer
-    Client *cli = new Client();
+    Client *cli = &this->clients[fd];
     std::vector<std::string> cmd;
 
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
@@ -104,7 +102,7 @@ void Server::ReceiveNewData(int fd)
         //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
         //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
         cli->SetBuffer(buff);
-        cmd = SplitBuffer(cli->GetBuffer());
+        cmd = SplitBuffer(buff);
 
         for (size_t i = 0; i < cmd.size(); i++) {
             Handler(fd, cmd[i], *this);

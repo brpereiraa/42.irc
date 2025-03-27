@@ -13,6 +13,7 @@ const std::map<int, Client> Channel::GetAdmins() const{	return this->admins; }
 void Channel::SetPassword(const std::string password) { this->password = password; }
 void Channel::SetTopic(const std::string topic) { this->topic = topic; }
 void Channel::SetInvite(const bool value) { this->inv_only = value; }
+void Channel::SetLimit(const int limit ) { this->usr_limit = limit; }
 
 void Channel::AddClient(Client &client){
 	if (this->clients.count(client.GetFd()))

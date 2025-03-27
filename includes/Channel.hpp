@@ -7,7 +7,7 @@ class Server;
 
 class Channel {
 	private:
-		// int usr_limit;
+		int usr_limit;
 		bool inv_only;
 		std::string name;
 		std::string topic;
@@ -28,6 +28,7 @@ class Channel {
 		void SetTopic(const std::string topic);
 		void SetPassword(const std::string password);
 		void SetInvite(const bool value);
+		void SetLimit(const int limit );
 
 		void AddClient(Client &client);
 		void RemoveClient(int fd);
