@@ -16,7 +16,7 @@ void User::execute(int fd, const std::string &line){
 	it = server.getClients().begin();
 	i = -1;
 
-	//Check auth handling
+	//Check password handling
 	if (server.getPassword() != "" && client.GetPassword() != server.getPassword()) {
 		server.sendResponse(":myserver 464 " 
 			+ (!client.GetNickname().empty() ? client.GetNickname() : "*")  
@@ -24,6 +24,13 @@ void User::execute(int fd, const std::string &line){
 		return ;
 	}
 
+	//Check if already logged
+	if (this->server.GetClient(fd)->GetLoggedIn()){
+		this->server.sendResponse(":myserver 462 " + client.GetNickname() + " :You may not reregister\r\n", fd);
+		return ;
+	}
+
+	//Change username
 	while (stream >> word) {
 
 		++i;
@@ -39,5 +46,5 @@ void User::execute(int fd, const std::string &line){
 
 	//Missing argument
 	if (i == 0)
-		server.sendResponse(":myserver 431 " +  client.GetNickname() + " : No nickname has been provided.\r\n", fd);
+		server.sendResponse(":myserver 431 " +  client.GetNickname() + " :No user has been provided.\r\n", fd);
 }

@@ -39,7 +39,7 @@ void Invite::execute(int fd, const std::string &line)
         }
 
         if (i == 3)
-            channel = server.GetChannelByName(word);
+            channel = server.GetChannel(word);
     };
 
     

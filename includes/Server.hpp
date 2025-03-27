@@ -54,7 +54,6 @@ class Server {
         void closeClientConnections();
         void cleanupChannels();
         int GetClientChannelCount(Client *client);
-        Channel *GetChannelByName(std::string name);
 };
 
 #endif // !SERVER_HPP

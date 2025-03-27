@@ -1,4 +1,5 @@
 #include "ACommands.hpp"
+#include <string>
 
 Mode::Mode(Server &server) : ACommands(server) 
 {
@@ -49,20 +50,68 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
     (void) target;
     (void) fd;
 
-    std::string::iterator str_it = modes.begin();
-    // std::vector<std::string>::iterator arg_it = args.begin();
+    bool value;
 
+    std::string::iterator str_it = modes.begin();
+    std::vector<std::string>::iterator arg_it = args.begin();
+
+    Client *client = this->server.GetClient(fd);
+    value = true;
+
+    //Check if it's to remove or add
+    if (*str_it == '-'){
+        value = false; 
+        str_it++;
+    }
+
+    if (*str_it == '+')
+        str_it++;
+
+    //handle modes
     while (str_it != modes.end()){
-        if (*str_it == 'i')
-            ;
-        if (*str_it == 't')
+        //Handle set invite positive/negative
+        if (*str_it == 'i'){
+            if (!value)
+                this->server.GetChannel(target)->SetInvite(false);
+            else
+                this->server.GetChannel(target)->SetInvite(true);
+        }
+
+        //
+        else if (*str_it == 't')
             ;        
-        if (*str_it == 'k')
+
+        //Handle channel password
+        else if (*str_it == 'k'){
+            //Remove password from channel
+            if (!value)
+                this->server.GetChannel(target)->SetPassword("");
+
+            //Set password on channel
+            else {
+                //Check if there is argument for password
+                if (arg_it == args.end()){
+                    this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                    str_it++;
+                    continue ;
+                }
+                
+                this->server.GetChannel(target)->SetPassword(*arg_it);
+                arg_it++;
+            }
+
+        }
+        else if (*str_it == 'o')
             ;
-        if (*str_it == 'o')
+        else if (*str_it == 'l')
             ;
-        if (*str_it == 'l')
+        else 
             ;
         str_it++;
     }
 }
+
+// void Mode::user(int fd, const std::string &targer, std::string &modes, std::vector<std::string> args)
+// {
+
+// }

@@ -54,6 +54,7 @@ void Nick::execute(int fd, const std::string &line){
 			if (it == server.getClients().end())
 				return ;
 			it->second.SetNickname(word);
+			server.sendResponse(":" + client.GetNickname() + "!" + client.GetUsername() + "@localhost NICK " + word + "\r\n", fd);
 		}
 	}
 
