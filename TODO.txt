@@ -1,0 +1,7 @@
+TODO:
+- erro estranho disconnect e file descriptor failed
+- name/topic channel
+- mode
+- admin user
+- topic
+- 
