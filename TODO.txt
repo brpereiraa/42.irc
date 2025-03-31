@@ -4,4 +4,4 @@ TODO:
 - mode
 - admin user
 - topic
-- 
+- password de canal

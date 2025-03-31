@@ -24,6 +24,7 @@ class Channel {
 		const std::string GetPassword() const;
 		const std::map<int, Client> GetClients() const;
 		const std::map<int, Client> GetAdmins() const;
+		int GetLimit() const;
 
 		void SetTopic(const std::string topic);
 		void SetPassword(const std::string password);

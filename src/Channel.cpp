@@ -7,13 +7,14 @@ Channel::~Channel() {}
 
 const std::string Channel::GetPassword() const { return this->password; }
 const std::string Channel::GetTopic() const { return this->topic; }
-const std::map<int, Client> Channel::GetClients() const {return this->clients; }
-const std::map<int, Client> Channel::GetAdmins() const{	return this->admins; }
+const std::map<int, Client> Channel::GetClients() const { return this->clients; }
+const std::map<int, Client> Channel::GetAdmins() const { return this->admins; }
+int Channel::GetLimit() const { return this->usr_limit; }
 
 void Channel::SetPassword(const std::string password) { this->password = password; }
 void Channel::SetTopic(const std::string topic) { this->topic = topic; }
 void Channel::SetInvite(const bool value) { this->inv_only = value; }
-void Channel::SetLimit(const int limit ) { this->usr_limit = limit; }
+void Channel::SetLimit(const int limit) { this->usr_limit = limit; }
 
 void Channel::AddClient(Client &client){
 	if (this->clients.count(client.GetFd()))

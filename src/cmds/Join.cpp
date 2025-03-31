@@ -7,8 +7,6 @@ Join::Join(Server &server) : ACommands(server)
 
 bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, Client *newClient, Channel *channel)
 {
-    cout << "count channels by client: " << this->server.GetClientChannelCount(newClient) << endl;
-
     if (!newClient) {
         return true;
     }
@@ -21,8 +19,9 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     //TODO: not sending any message
     // Check if the client is already in 10 channels
     if (this->server.GetClientChannelCount(newClient) >= 10) {
+        cout << channel->GetTopic() << endl;
         this->server.sendResponse(ERR_TOOMANYCHANNELS(newClient->GetNickname(), channel->GetTopic()), fd);
-        //return true;
+        return true;
     }
 
     // Ensure the channel name has the '#' prefix
@@ -30,16 +29,12 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     //     channelName = "#" + channelName;
     // }
 
-    // // Create and add the channel to the server
-    // Channel newChannel(channelName);
-    
-    // // If the channel requires a password and the user didn't provide one
-    // if (!newChannel.GetPassword().empty() && (tokens.size() <= i + 1 || newChannel.GetPassword() != tokens[i + 1])) {
-    //     if (!this->server.IsInvited(newClient, channelName, 0)) {
-    //         this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channelName), fd);
-    //         return;
-    //     }
-    // }
+    // If the channel requires a password and the user didn't provide one
+    cout << "pass: " << channel->GetPassword() << endl;
+    if (!channel->GetPassword().empty() && (tokens.size() <= i + 1 || channel->GetPassword() != tokens[i + 1])) {
+        this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channel->GetTopic()), fd);
+        return true;
+    }
 
     // // If the channel is invite-only and the user is not invited
     // if (newChannel.GetInvitOnly() && !this->server.IsInvited(newClient, channelName, 1)) {
@@ -47,11 +42,12 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     //     return;
     // }
 
-    // // If the channel is full
-    // if (newChannel.GetLimit() && newChannel.GetClientsNumber() >= newChannel.GetLimit()) {
-    //     this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channelName), fd);
-    //     return;
-    // }
+    // If the channel is full
+    cout << "limit: " << channel->GetLimit() << endl;
+    if (channel->GetLimit() > 0 && channel->GetClients().size() >= static_cast<size_t>(channel->GetLimit())) {
+        this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetTopic()), fd);
+        return true;
+    }
     return false;
 }
 
@@ -81,11 +77,9 @@ void Join::execute(int fd, const std::string &line)
         if (channels.find(channelName[i]) != channels.end()) {
             cout << "channel name i: " << channelName[i] << endl;
             joinChannel(fd, i, channelName);
-            cout << "Channel " << channelName[i] << " already exists." << endl;
         }
 		else {
 			createAndJoinChannel(fd, i, channelName);
-            cout << "Channel " << channelName[i] << " does not exist." << endl;
         }
     }
 }
@@ -116,10 +110,8 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
 
 void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> tokens) 
 {
-    cout << "ENTROU CREATE" << endl;
     Client *newClient = this->server.GetClient(fd);
     std::string channelName = tokens[i];
-    cout << "CHANNELNAME[0]: " << channelName << endl;
 
     // Ensure the channel name has the '#' prefix (if needed)
     if (channelName[0] != '#') {

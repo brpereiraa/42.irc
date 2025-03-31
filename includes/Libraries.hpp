@@ -44,6 +44,13 @@
 #define ERR_TOOMANYCHANNELS(nickname, channel) \
     (":myserver 405 " + nickname + " " + channel + " :You have joined too many channels" + CRLF)
 
+#define ERR_BADCHANNELKEY(nickname, channel) \
+    (":myserver 475 " + nickname + " " + channel + " :Cannot join channel (+k) - bad key" + CRLF)
+
+#define ERR_CHANNELISFULL(nickname, channel) \
+    (":myserver 471 " + nickname + " " + channel + " :Cannot join channel (+l)" + CRLF)
+
+
 #define RED "\033[0;31m"
 #define RESET "\033[0m"
 
