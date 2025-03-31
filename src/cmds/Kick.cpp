@@ -1,9 +1,26 @@
 #include "ACommands.hpp"
 
+
 Kick::Kick(Server &server) : ACommands(server) 
 {
     this->server = server;
 }
+//verifica se o cliente e admin
+bool Kick::isAdmin(const Client &client, const Channel &channel) 
+{
+    const std::map<int, Client>& admins = channel.GetAdmins();
+    for (std::map<int, Client>::const_iterator it = admins.begin(); it != admins.end(); ++it) 
+    {
+        if (it->second.GetFd() == client.GetFd() &&
+            it->second.GetNickname() == client.GetNickname() &&
+            it->second.GetUsername() == client.GetUsername()) 
+            {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 void Kick::execute(int fd, const std::string& line)
 {
@@ -14,6 +31,7 @@ void Kick::execute(int fd, const std::string& line)
     std::stringstream line_stream(line);
     std::string temp;
     std::vector<std::string> args;
+    
 
     while (line_stream >> temp) {
         args.push_back(temp);

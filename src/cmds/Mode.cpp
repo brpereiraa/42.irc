@@ -110,7 +110,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                     continue ;
                 }
 
-                this->server.GetChannel(target)->SetLimit(std::stoi(*arg_it));
+                //this->server.GetChannel(target)->SetLimit(std::stoi(*arg_it));
                 arg_it++;
             }
 

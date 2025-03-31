@@ -10,7 +10,7 @@ Client::Client(std::string nickname, std::string username){
 	this->username = username;
 }
 
-int Client::GetFd() { return this->fd; }
+int Client::GetFd() const { return this->fd; }
 const std::string Client::GetIpAdd() const { return this->ip_add; }
 const std::string Client::GetNickname() const { return this->nickname; }
 const std::string Client::GetUsername() const { return this->username; }

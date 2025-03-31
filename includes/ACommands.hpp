@@ -33,6 +33,7 @@ class Privmsg : public ACommands {
 class Kick : public ACommands {
     public:
         Kick(Server &server);
+        bool isAdmin(const Client &client, const Channel &channel);
         void execute(int fd, const std::string& line);
 };
 
