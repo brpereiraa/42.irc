@@ -26,6 +26,8 @@ class Channel {
 		const std::map<int, Client> GetClients() const;
 		const std::map<int, Client> GetAdmins() const;
 		const std::map<int, Client> GetInvited() const;
+		const std::string GetName() const;
+		bool GetInvite() const;
 		int GetLimit() const;
 
 		Client *GetInvitedByNick(std::string nickname);
@@ -41,7 +43,7 @@ class Channel {
 		void RemoveClient(int fd);
 		void SendToAll(const std::string &reply, int fd, Server &server);
 		void ClearClients();
-		bool GetClientInChannel(std::string &nickname);
+		bool GetClientInChannel(const std::string &nickname);
 		std::string ClientChannelList();
 
 };

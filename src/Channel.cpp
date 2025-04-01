@@ -105,7 +105,7 @@ void Channel::ClearClients()
     admins.clear(); // Clear the admin map
 }
 
-bool Channel::GetClientInChannel(std::string &nickname) 
+bool Channel::GetClientInChannel(const std::string &nickname) 
 {
     for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
         if (it->second.GetNickname() == nickname) {
@@ -113,4 +113,14 @@ bool Channel::GetClientInChannel(std::string &nickname)
         }
     }
     return false;
+}
+
+const std::string Channel::GetName() const 
+{
+    return name;
+}
+
+bool Channel::GetInvite() const
+{
+    return inv_only;
 }
