@@ -116,11 +116,6 @@ bool Channel::GetClientInChannel(const std::string &nickname)
     return false;
 }
 
-const std::string Channel::GetName() const 
-{
-    return name;
-}
-
 bool Channel::GetInvite() const
 {
     return inv_only;

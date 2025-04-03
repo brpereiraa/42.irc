@@ -27,7 +27,6 @@ class Channel {
 		const std::map<int, Client> GetClients() const;
 		const std::map<int, Client> GetAdmins() const;
 		const std::map<int, Client> GetInvited() const;
-		const std::string GetName() const;
 		bool GetInvite() const;
 		int GetLimit() const;
 
