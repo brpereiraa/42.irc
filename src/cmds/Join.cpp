@@ -19,8 +19,8 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     //TODO: not sending any message
     // Check if the client is already in 10 channels
     if (this->server.GetClientChannelCount(newClient) >= 10) {
-        cout << channel->GetTopic() << endl;
-        this->server.sendResponse(ERR_TOOMANYCHANNELS(newClient->GetNickname(), channel->GetTopic()), fd);
+        cout << channel->GetName() << endl;
+        this->server.sendResponse(ERR_TOOMANYCHANNELS(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
 
@@ -32,7 +32,7 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     // If the channel requires a password and the user didn't provide one
     cout << "pass: " << channel->GetPassword() << endl;
     if (!channel->GetPassword().empty() && (tokens.size() <= i + 1 || channel->GetPassword() != tokens[i + 1])) {
-        this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channel->GetTopic()), fd);
+        this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
 
@@ -45,7 +45,7 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     // If the channel is full
     cout << "limit: " << channel->GetLimit() << endl;
     if (channel->GetLimit() > 0 && channel->GetClients().size() >= static_cast<size_t>(channel->GetLimit())) {
-        this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetTopic()), fd);
+        this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
     return false;
@@ -99,8 +99,8 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
     std::string nameReply = RPL_NAMREPLY(newClient->GetNickname(), tokens[i], channel->ClientChannelList());
     std::string endNames = RPL_ENDOFNAMES(newClient->GetNickname(), tokens[i]);
 
-    if (!channel->GetTopic().empty()) {
-        this->server.sendResponse(joinMsg + RPL_TOPICIS(newClient->GetNickname(), tokens[i], channel->GetTopic()) + nameReply + endNames, fd);
+    if (!channel->GetName().empty()) {
+        this->server.sendResponse(joinMsg + RPL_TOPICIS(newClient->GetNickname(), tokens[i], channel->GetName()) + nameReply + endNames, fd);
     } else {
         this->server.sendResponse(joinMsg + nameReply + endNames, fd);
     }

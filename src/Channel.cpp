@@ -1,12 +1,13 @@
 #include "Libraries.hpp"
 
 Channel::Channel() {}
-Channel::Channel(const std::string topic){ this->topic = topic; }
+Channel::Channel(const std::string name){ this->name = name; }
 
 Channel::~Channel() {}
 
 const std::string Channel::GetPassword() const { return this->password; }
 const std::string Channel::GetTopic() const { return this->topic; }
+const std::string Channel::GetName() const { return this->name; }
 const std::map<int, Client> Channel::GetClients() const { return this->clients; }
 const std::map<int, Client> Channel::GetAdmins() const { return this->admins; }
 int Channel::GetLimit() const { return this->usr_limit; }

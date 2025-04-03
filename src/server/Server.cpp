@@ -14,11 +14,11 @@ Server::Server(int port, std::string password)
 //-----------Map_Handler-------------------
 
 bool Server::addChannel(Channel &channel) {
-	if (this->channels.count(channel.GetTopic())) {
-		std::cout << "Channel with topic  " << channel.GetTopic() << " already exists" << std::endl;
+	if (this->channels.count(channel.GetName())) {
+		std::cout << "Channel with topic  " << channel.GetName() << " already exists" << std::endl;
         return (false);
     }
-	this->channels[channel.GetTopic()] = channel;
+	this->channels[channel.GetName()] = channel;
     return (true);
 }
 

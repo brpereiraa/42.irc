@@ -53,7 +53,7 @@ void Invite::execute(int fd, const std::string &line)
         return ;
     }
 
-    server.sendResponse((":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost INVITE " + i_client->GetNickname() + channel->GetTopic() + "\r\n"), fd);
-    server.sendResponse(":" + client->GetNickname() + " INVITE " +  i_client->GetNickname() + " :" + channel->GetTopic() + "\r\n",  i_client->GetFd());
+    server.sendResponse((":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost INVITE " + i_client->GetNickname() + channel->GetName() + "\r\n"), fd);
+    server.sendResponse(":" + client->GetNickname() + " INVITE " +  i_client->GetNickname() + " :" + channel->GetName() + "\r\n",  i_client->GetFd());
 
 }

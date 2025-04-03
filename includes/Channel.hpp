@@ -21,6 +21,7 @@ class Channel {
 		~Channel();
 
 		const std::string GetTopic() const;
+		const std::string GetName() const;
 		const std::string GetPassword() const;
 		const std::map<int, Client> GetClients() const;
 		const std::map<int, Client> GetAdmins() const;

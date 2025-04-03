@@ -50,6 +50,20 @@
 #define ERR_CHANNELISFULL(nickname, channel) \
     (":myserver 471 " + nickname + " " + channel + " :Cannot join channel (+l)" + CRLF)
 
+#define ERR_NEEDMOREPARAMS(cmd) \
+    (":myserver 461 " + cmd + " :Not enough parameters" + CRLF)
+
+#define ERR_CHANOPRIVSNEEDED(nickname, channel) \
+    (":myserver 482 " + nickname + " " + channel + " :You're not a channel operator" + CRLF)
+
+#define RPL_TOPIC(nickname, channel, topic) \
+    (":myserver 332 " + nickname + " " + channel + " :" + topic + CRLF)
+
+#define RPL_NOTOPIC(nickname, channel) \
+    (":myserver 331 " + nickname + " " + channel + " :No topic is set" + CRLF)
+
+#define RPL_TOPICMSG(nickname, channel, topic) \
+    (":" + nickname + " TOPIC " + channel + " :" + topic + CRLF)
 
 #define RED "\033[0;31m"
 #define RESET "\033[0m"
