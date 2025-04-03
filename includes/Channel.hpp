@@ -38,6 +38,7 @@ class Channel {
 		void SetLimit(const int limit );
 
 		void AddClient(Client &client);
+		void AddAdmin(Client &client);
 		void AddInvited(Client &client);
 
 		void RemoveClient(int fd);

@@ -1,7 +1,5 @@
 TODO:
 - name/topic channel
 - mode
-- admin user
-- password de canal
 - check if invited user is already in message (message might be wrong)
 - part/close
