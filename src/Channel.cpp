@@ -10,6 +10,7 @@ const std::string Channel::GetTopic() const { return this->topic; }
 const std::string Channel::GetName() const { return this->name; }
 const std::map<int, Client> Channel::GetClients() const { return this->clients; }
 const std::map<int, Client> Channel::GetAdmins() const { return this->admins; }
+const std::map<int, Client> Channel::GetInvited() const { return this->admins; }
 int Channel::GetLimit() const { return this->usr_limit; }
 
 void Channel::SetPassword(const std::string password) { this->password = password; }
@@ -17,9 +18,27 @@ void Channel::SetTopic(const std::string topic) { this->topic = topic; }
 void Channel::SetInvite(const bool value) { this->inv_only = value; }
 void Channel::SetLimit(const int limit) { this->usr_limit = limit; }
 
+Client *Channel::GetInvitedByNick(std::string nickname){
+    std::map<int, Client>::iterator it = this->invited.begin();
+
+    while (it != this->invited.end()){
+        if (it->second.GetNickname() == nickname)
+            return (&it->second);
+    }
+    
+    return (NULL);
+}
+
 void Channel::AddClient(Client &client){
 	if (this->clients.count(client.GetFd()))
 		std::cout << "User with nickname " << client.GetNickname() << " already exists" << std::endl;
+	else
+		this->clients[client.GetFd()] = client;
+}
+
+void Channel::AddInvited(Client &client){
+	if (this->invited.count(client.GetFd()))
+        ;
 	else
 		this->clients[client.GetFd()] = client;
 }
@@ -87,7 +106,7 @@ void Channel::ClearClients()
     admins.clear(); // Clear the admin map
 }
 
-bool Channel::GetClientInChannel(std::string &nickname) 
+bool Channel::GetClientInChannel(const std::string &nickname) 
 {
     for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
         if (it->second.GetNickname() == nickname) {
@@ -95,4 +114,14 @@ bool Channel::GetClientInChannel(std::string &nickname)
         }
     }
     return false;
+}
+
+const std::string Channel::GetName() const 
+{
+    return name;
+}
+
+bool Channel::GetInvite() const
+{
+    return inv_only;
 }
