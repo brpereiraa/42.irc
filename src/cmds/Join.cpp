@@ -30,20 +30,18 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     // }
 
     // If the channel requires a password and the user didn't provide one
-    cout << "pass: " << channel->GetPassword() << endl;
     if (!channel->GetPassword().empty() && (tokens.size() <= i + 1 || channel->GetPassword() != tokens[i + 1])) {
         this->server.sendResponse(ERR_BADCHANNELKEY(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
 
-    // // If the channel is invite-only and the user is not invited
-    // if (newChannel.GetInvitOnly() && !this->server.IsInvited(newClient, channelName, 1)) {
-    //     this->server.sendResponse(ERR_INVITEONLYCHAN(newClient->GetNickname(), channelName), fd);
-    //     return;
-    // }
+    // If the channel is invite-only and the user is not invited
+    if (channel->GetInvite() && !channel->GetInvitedByNick(newClient->GetNickname())) {
+        this->server.sendResponse(ERR_INVITEONLYCHAN(newClient->GetNickname(), channel->GetName()), fd);
+        return true;
+    }
 
     // If the channel is full
-    cout << "limit: " << channel->GetLimit() << endl;
     if (channel->GetLimit() > 0 && channel->GetClients().size() >= static_cast<size_t>(channel->GetLimit())) {
         this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetName()), fd);
         return true;
@@ -73,9 +71,7 @@ void Join::execute(int fd, const std::string &line)
         ThrowException("ERR_TOOMANYTARGETS (407)");
 
     for (size_t i = 0; i <= (channelName.size() - 1); i++) {
-        std::map<std::string, Channel> channels = this->server.getChannels();
-        if (channels.find(channelName[i]) != channels.end()) {
-            cout << "channel name i: " << channelName[i] << endl;
+        if (this->server.GetChannelByName(channelName[i])) {
             joinChannel(fd, i, channelName);
         }
 		else {

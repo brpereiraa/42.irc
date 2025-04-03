@@ -58,6 +58,18 @@ Client                  *Server::GetClient(int fd) {return (&this->clients[fd]);
 std::map<std::string, Channel>  Server::getChannels() const { return this->channels; }
 Channel                         *Server::GetChannel(std::string name) { return (&this->channels[name]); }
 
+Channel *Server::GetChannelByName(std::string name) {
+    std::map<std::string, Channel>::iterator it = this->channels.begin();
+
+    while (it != this->channels.end()){
+        if (toLowerString(it->second.GetName()) == toLowerString(name))
+            return (&it->second);
+        it++;
+    }
+
+    return (NULL);
+}
+
 std::string Server::getPassword() const { return this->password; }
 
 std::string Server::getTime() const {

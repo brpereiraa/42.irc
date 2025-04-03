@@ -40,6 +40,9 @@
 
 #define ERR_NOSUCHCHANNEL(nickname, channel) \
     (":myserver 403 " + nickname + " " + channel + " :No such channel" + CRLF)
+    
+#define ERR_INVITEONLYCHAN(nickname, channel) \
+    (":myserver 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF)
 
 #define ERR_TOOMANYCHANNELS(nickname, channel) \
     (":myserver 405 " + nickname + " " + channel + " :You have joined too many channels" + CRLF)
@@ -74,5 +77,7 @@ inline void ThrowException(std::string msg)
 {
     throw(std::runtime_error(msg));
 }
+
+std::string toLowerString(const std::string& str);
 
 #endif // !LIBRARIES_HPP

@@ -37,6 +37,7 @@ class Server {
 
         std::map<int, Client> &getClients();
         std::map<std::string, Channel> getChannels() const;
+        Channel *GetChannelByName(std::string name);
         std::string getTime() const;
         std::string getPassword() const;
 
