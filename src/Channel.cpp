@@ -29,14 +29,21 @@ Client *Channel::GetInvitedByNick(std::string nickname){
     return (NULL);
 }
 
-void Channel::AddClient(Client &client){
+void Channel::AddClient(Client &client) {
 	if (this->clients.count(client.GetFd()))
 		std::cout << "User with nickname " << client.GetNickname() << " already exists" << std::endl;
 	else
 		this->clients[client.GetFd()] = client;
 }
 
-void Channel::AddInvited(Client &client){
+void Channel::AddAdmin(Client &client) {
+	if (this->admins.count(client.GetFd()))
+		std::cout << "User with nickname " << client.GetNickname() << " already exists" << std::endl;
+	else
+		this->admins[client.GetFd()] = client;
+}
+
+void Channel::AddInvited(Client &client) {
 	if (this->invited.count(client.GetFd()))
         ;
 	else

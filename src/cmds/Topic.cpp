@@ -52,6 +52,8 @@ void Topic::execute(int fd, const std::string &line)
 
         channel->SetTopic(newTopic);
 
+        cout << "topic: " << channel->GetTopic() << endl;
+
         // Broadcast to all users in the channel
         std::string response = RPL_TOPICMSG(client->GetNickname(), channelName, newTopic);
         channel->SendToAll(response, fd, this->server);
@@ -59,9 +61,9 @@ void Topic::execute(int fd, const std::string &line)
     else {
         // If no topic is provided, return the current topic
         if (channel->GetTopic().empty()) {
-            this->server.sendResponse(RPL_NOTOPIC(client->GetNickname(), channelName), fd);
+            this->server.sendResponse(RPL_NOTOPIC(client->GetNickname(), channel->GetName()), fd);
         } else {
-            this->server.sendResponse(RPL_TOPICIS(client->GetNickname(), channelName, channel->GetTopic()), fd);
+            this->server.sendResponse(RPL_TOPICIS(client->GetNickname(), channel->GetName(), channel->GetTopic()), fd);
         }
     }
 }

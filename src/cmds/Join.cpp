@@ -85,11 +85,10 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
     Client *newClient = this->server.GetClient(fd);
     Channel *channel = this->server.GetChannel(tokens[i]);
 
-
     if (initialChecksJoin(fd, i, tokens, newClient, channel))
         return;
 
-    channel->AddClient(*newClient);
+    channel->AddAdmin(*newClient);
 
     std::string joinMsg = RPL_JOINMSG(newClient->GetNickname(), newClient->GetUsername(), tokens[i]);
     std::string nameReply = RPL_NAMREPLY(newClient->GetNickname(), tokens[i], channel->ClientChannelList());
@@ -119,7 +118,7 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
     if (initialChecksJoin(fd, i, tokens, newClient, &newChannel))
         return;
 
-    newChannel.AddClient(*newClient);
+    newChannel.AddAdmin(*newClient);
     this->server.addChannel(newChannel);
 
     Channel *createdChannel = this->server.GetChannel(channelName);
