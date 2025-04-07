@@ -1,7 +1,10 @@
 #include "Libraries.hpp"
 
 Channel::Channel() {}
-Channel::Channel(const std::string name){ this->name = name; }
+Channel::Channel(const std::string name){ 
+    this->name = name; 
+    this->inv_only = false;
+}
 
 Channel::~Channel() {}
 

@@ -56,6 +56,9 @@
 #define ERR_NEEDMOREPARAMS(cmd) \
     (":myserver 461 " + cmd + " :Not enough parameters" + CRLF)
 
+#define RPL_PARTMSG(nickname, channel) \
+    (":" + nickname + " PART " + channel + CRLF)
+
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) \
     (":myserver 482 " + nickname + " " + channel + " :You're not a channel operator" + CRLF)
 

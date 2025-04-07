@@ -37,6 +37,7 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
 
     // If the channel is invite-only and the user is not invited
     if (channel->GetInvite() && !channel->GetInvitedByNick(newClient->GetNickname())) {
+        std::cout << "Invite only channel" << std::endl;
         this->server.sendResponse(ERR_INVITEONLYCHAN(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
@@ -88,7 +89,7 @@ void Join::joinChannel(int fd, size_t i, std::vector<std::string> tokens)
     if (initialChecksJoin(fd, i, tokens, newClient, channel))
         return;
 
-    channel->AddAdmin(*newClient);
+    channel->AddClient(*newClient);
 
     std::string joinMsg = RPL_JOINMSG(newClient->GetNickname(), newClient->GetUsername(), tokens[i]);
     std::string nameReply = RPL_NAMREPLY(newClient->GetNickname(), tokens[i], channel->ClientChannelList());
@@ -110,7 +111,8 @@ void Join::createAndJoinChannel(int fd, size_t i, std::vector<std::string> token
 
     // Ensure the channel name has the '#' prefix (if needed)
     if (channelName[0] != '#') {
-        channelName = "#" + channelName;
+        server.sendResponse(ERR_NOSUCHCHANNEL(newClient->GetNickname(), channelName), fd);
+        return ;
     }
 
     Channel newChannel(channelName);

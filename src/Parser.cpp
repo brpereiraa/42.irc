@@ -38,6 +38,8 @@ void Handler(int fd, std::string line, Server &server)
         command = new Pong(server);
     else if (cmds == "PRIVMSG")
         command = new Privmsg(server);
+    else if (cmds == "PART")
+        command = new Part(server);
         
     if (command) { 
         command->execute(fd, line);

@@ -5,6 +5,7 @@ Kick::Kick(Server &server) : ACommands(server)
 {
     this->server = server;
 }
+
 //verifica se o cliente e admin
 bool Kick::isAdmin(const Client &client, const Channel &channel) 
 {

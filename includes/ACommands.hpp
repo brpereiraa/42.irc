@@ -84,4 +84,11 @@ class Pass : public ACommands {
         
 };
 
+class Part : public ACommands {
+    public:
+        Part(Server &server);
+        void execute (int fd, const std::string &line);
+        
+};
+
 #endif // !ACOMMANDS_HPP
