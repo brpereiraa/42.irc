@@ -197,45 +197,35 @@ std::vector<std::string> Server::SplitBuffer(std::string str)
 
 void Server::SendMessages(int fd)
 {
-    this->clients[fd].SetLogged(true);
+    Client &client = this->clients[fd]; // Get client reference to avoid multiple lookups
+
+    client.SetLogged(true);
 
     // 001 - Welcome message
-    std::string welcomeMsg = ":myserver 001 " + this->clients[fd].GetNickname() + " :Welcome to the IRC server!" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_CONNECTED(client.GetNickname()), fd);
 
     // 002 - Host info
-    welcomeMsg = ":myserver 002 " + this->clients[fd].GetNickname() + " :Your host is running IRC Server, running version 1.0" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_HOSTINFO(client.GetNickname()), fd);
 
     // 003 - Server creation time
-    welcomeMsg = ":myserver 003 " + this->clients[fd].GetNickname() + " :This server was created " + this->getTime() + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_CREATIONTIME(client.GetNickname(), this->getTime()), fd);
 
     // 004 - Server information and supported modes
-    welcomeMsg = ":myserver 004 " + this->clients[fd].GetNickname() + " myserver 1.0 oiw btkl" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_SERVERINFO(client.GetNickname()), fd);
 
-    // 005 - Supported server features
-    welcomeMsg = ":myserver 005 " + this->clients[fd].GetNickname() + " CHANTYPES=# PREFIX=(o,v)@+ MAXNICKLEN=30 :are supported by this server" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    // 005 - Supported server features (including CHANLIMIT)
+    sendResponse(RPL_ISUPPORT(client.GetNickname()), fd);
 
     // 375 - Start of MOTD
-    welcomeMsg = ":myserver 375 " + this->clients[fd].GetNickname() + " :- IRC Message of the day - AMELO" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_MOTDSTART(client.GetNickname()), fd);
 
     // 372 - MOTD lines
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Welcome to our IRC server!" + CRLF;
-    sendResponse(welcomeMsg, fd);
-
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Please be respectful and follow the rules." + CRLF;
-    sendResponse(welcomeMsg, fd);
-
-    welcomeMsg = ":myserver 372 " + this->clients[fd].GetNickname() + " :- Have fun chatting!" + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Welcome to our IRC server!"), fd);
+    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Please be respectful and follow the rules."), fd);
+    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Have fun chatting!"), fd);
 
     // 376 - End of MOTD
-    welcomeMsg = ":myserver 376 " + this->clients[fd].GetNickname() + " :End of MOTD command." + CRLF;
-    sendResponse(welcomeMsg, fd);
+    sendResponse(RPL_MOTDEND(client.GetNickname()), fd);
 }
 
 bool Server::registered(int fd) 

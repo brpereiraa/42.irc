@@ -16,10 +16,8 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
         return true;
     }
 
-    //TODO: not sending any message
     // Check if the client is already in 10 channels
-    if (this->server.GetClientChannelCount(newClient) >= 10) {
-        cout << channel->GetName() << endl;
+    if (this->server.GetClientChannelCount(newClient) > 10) {
         this->server.sendResponse(ERR_TOOMANYCHANNELS(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
@@ -47,6 +45,7 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
         this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
+
     return false;
 }
 

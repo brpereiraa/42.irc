@@ -26,6 +26,30 @@
 
 #define CRLF "\r\n"
 
+#define RPL_CONNECTED(nickname) \
+    (":myserver 001 " + nickname + " :Welcome to the IRC server!" + CRLF)
+
+#define RPL_HOSTINFO(nickname) \
+    (":myserver 002 " + nickname + " :Your host is running IRC Server, running version 1.0" + CRLF)
+
+#define RPL_CREATIONTIME(nickname, time) \
+    (":myserver 003 " + nickname + " :This server was created " + time + CRLF)
+
+#define RPL_SERVERINFO(nickname) \
+    (":myserver 004 " + nickname + " myserver 1.0 oiw btkl" + CRLF)
+
+#define RPL_ISUPPORT(nickname) \
+    (":myserver 005 " + nickname + " CHANTYPES=# PREFIX=(o,v)@+ MAXNICKLEN=30 CHANLIMIT=#&:10 :are supported by this server" + CRLF)
+
+#define RPL_MOTDSTART(nickname) \
+    (":myserver 375 " + nickname + " :- IRC Message of the day - AMELO" + CRLF)
+
+#define RPL_MOTDLINES(nickname, line) \
+    (":myserver 372 " + nickname + " :- " + line + CRLF)
+
+#define RPL_MOTDEND(nickname) \
+    (":myserver 376 " + nickname + " :End of MOTD command." + CRLF)
+
 #define RPL_JOINMSG(nickname, username, channelname) \
     (":" + nickname + "!" + username + " JOIN " + channelname + CRLF)
 
@@ -73,6 +97,9 @@
 
 #define RPL_TOPICMSG(nickname, channel, topic) \
     (":" + nickname + " TOPIC " + channel + " :" + topic + CRLF)
+
+#define ERR_NOSUCHNICKCHAN(client, nickname) \
+    (":" + client + " " + nickname + " :No such nick/channel" + CRLF)
 
 #define RED "\033[0;31m"
 #define RESET "\033[0m"

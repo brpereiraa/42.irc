@@ -189,6 +189,13 @@ bool Channel::GetClientInChannel(const std::string &nickname)
             return true;
         }
     }
+
+    for (std::map<int, Client>::iterator it = this->admins.begin(); it != this->admins.end(); ++it) {
+        if (it->second.GetNickname() == nickname) {
+            return true;
+        }
+    }
+
     return false;
 }
 

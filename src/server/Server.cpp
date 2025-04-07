@@ -95,10 +95,9 @@ Client *Server::GetClientByNickname(std::string &nick) {
 }
 
 int Server::GetClientChannelCount(Client *client) {
-    int count = 0;
+    int count = 1;
     for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
-        std::string nickname = client->GetNickname();
-        if (it->second.GetClientInChannel(nickname)) {
+        if (it->second.GetClientInChannel(client->GetNickname())) {
             count++;
         }
     }
