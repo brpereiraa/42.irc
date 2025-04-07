@@ -12,6 +12,7 @@ void Mode::execute(int fd, const std::string &line)
     std::string word;
     std::string target, modes;
     std::vector<std::string> args;
+    Channel *channel;
     int i;
 
     i = 0;
@@ -39,7 +40,14 @@ void Mode::execute(int fd, const std::string &line)
         std::cout << "Only channel modes are available" << std::endl;
         return ;
     }
-    
+
+    channel = this->server.GetChannelByName(target);
+    if (!channel->IsAdmin(fd)){
+        std::cout << "User isn't admin in channel" << std::endl;
+        return ;
+    }
+
+
     this->channel(fd, target, modes, args);
     
 }
@@ -50,6 +58,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
     std::string::iterator str_it = modes.begin();
     std::vector<std::string>::iterator arg_it = args.begin();
+    Channel *channel;
 
     Client *client = this->server.GetClient(fd);
     value = true;
@@ -89,8 +98,29 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             }
 
         }
-        else if (*str_it == 'o')
-            ;
+
+        
+        else if (*str_it == 'o') {
+            channel = this->server.GetChannel(target);
+
+            //Add client to admin first. Remove from client later
+            if (!value) {
+                channel->AddClient(*channel->GetAdminByNick(*arg_it));
+                channel->RemoveAdmin(*arg_it);
+                channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "-o", *arg_it), fd, this->server);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "-o", *arg_it), fd);
+            } 
+            
+            //Add client to admin first. Remove from admin later
+            else {
+                channel->AddAdmin(*channel->GetClientByNick(*arg_it));
+                channel->RemoveClientNick(*arg_it);
+                channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd, this->server);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd);
+
+            }
+        }
+            
 
         //Handle max number of users per channel
         else if (*str_it == 'l')
@@ -116,7 +146,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
         }
 
         //Check if it's invalid characters/mode
-        else if (*str_it != '+')
+        else if (*str_it != '+' && *str_it != '-')
             this->server.sendResponse(":myserver 501 " + client->GetNickname() + " :Unknown MODE flag\r\n", fd); 
         
         //Reset to true after every character

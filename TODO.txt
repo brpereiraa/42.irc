@@ -1,6 +1,6 @@
 TODO:
 - name/topic channel
-- mode
+- mode -> Send appropriate response in case of mode change.
 - check if invited user is already in message (message might be wrong)
 - part/close
 - part -> check missing arguments message

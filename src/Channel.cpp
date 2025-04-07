@@ -8,18 +8,20 @@ Channel::Channel(const std::string name){
 
 Channel::~Channel() {}
 
-const std::string Channel::GetPassword() const { return this->password; }
-const std::string Channel::GetTopic() const { return this->topic; }
-const std::string Channel::GetName() const { return this->name; }
-const std::map<int, Client> Channel::GetClients() const { return this->clients; }
-const std::map<int, Client> Channel::GetAdmins() const { return this->admins; }
-const std::map<int, Client> Channel::GetInvited() const { return this->admins; }
-int Channel::GetLimit() const { return this->usr_limit; }
+const   std::string Channel::GetPassword() const { return this->password; }
+const   std::string Channel::GetTopic() const { return this->topic; }
+const   std::string Channel::GetName() const { return this->name; }
+const   std::map<int, Client> Channel::GetClients() const { return this->clients; }
+const   std::map<int, Client> Channel::GetAdmins() const { return this->admins; }
+const   std::map<int, Client> Channel::GetInvited() const { return this->admins; }
+int     Channel::GetLimit() const { return this->usr_limit; }
+bool    Channel::GetInvite() const { return inv_only; }
 
-void Channel::SetPassword(const std::string password) { this->password = password; }
-void Channel::SetTopic(const std::string topic) { this->topic = topic; }
-void Channel::SetInvite(const bool value) { this->inv_only = value; }
-void Channel::SetLimit(const int limit) { this->usr_limit = limit; }
+
+void    Channel::SetPassword(const std::string password) { this->password = password; }
+void    Channel::SetTopic(const std::string topic) { this->topic = topic; }
+void    Channel::SetInvite(const bool value) { this->inv_only = value; }
+void    Channel::SetLimit(const int limit) { this->usr_limit = limit; }
 
 Client *Channel::GetInvitedByNick(std::string nickname){
     std::map<int, Client>::iterator it = this->invited.begin();
@@ -27,10 +29,38 @@ Client *Channel::GetInvitedByNick(std::string nickname){
     while (it != this->invited.end()){
         if (it->second.GetNickname() == nickname)
             return (&it->second);
+        it++;
     }
     
     return (NULL);
 }
+
+Client *Channel::GetClientByNick(std::string nickname) {
+    std::map<int, Client>::iterator it = this->clients.begin();
+
+    while (it != this->clients.end()){
+        if (it->second.GetNickname() == nickname)
+            return (&it->second);
+        it++;
+    }
+    
+    return (NULL);
+}
+
+Client *Channel::GetAdminByNick(std::string nickname) {
+    std::map<int, Client>::iterator it = this->admins.begin();
+
+    while (it != this->clients.end()){
+        if (it->second.GetNickname() == nickname)
+            return (&it->second);
+        it++;
+    }
+    
+    return (NULL);
+}
+
+
+//----------Map Functions-------------
 
 void Channel::AddClient(Client &client) {
 	if (this->clients.count(client.GetFd()))
@@ -53,9 +83,45 @@ void Channel::AddInvited(Client &client) {
 		this->clients[client.GetFd()] = client;
 }
 
-void Channel::RemoveClient(int fd){
-	this->clients.erase(fd);
+void Channel::RemoveClient(int fd){ this->clients.erase(fd); }
+
+void Channel::RemoveClientNick(std::string nick){
+    std::map<int, Client>::iterator it = this->clients.begin();
+
+    while (it != this->clients.end()){
+        if (it->second.GetNickname() == nick) {
+            clients.erase(it->second.GetFd());
+            return ;
+        }
+        it++;
+    }
 }
+
+void Channel::RemoveAdmin(std::string nick){
+    std::map<int, Client>::iterator it = this->admins.begin();
+
+    while (it != this->clients.end()){
+        if (it->second.GetNickname() == nick){
+            clients.erase(it->second.GetFd());
+            return ;
+        }
+        it++;
+    }
+}
+
+void Channel::RemoveInvited(std::string nick){
+    std::map<int, Client>::iterator it = this->invited.begin();
+
+    while (it != this->clients.end()){
+        if (it->second.GetNickname() == nick) {
+            clients.erase(it->second.GetFd());
+            return ;
+        }
+        it++;
+    }
+}
+
+//----------Helper Functions--------------
 
 std::string Channel::ClientChannelList() {
     std::string list;
@@ -126,7 +192,15 @@ bool Channel::GetClientInChannel(const std::string &nickname)
     return false;
 }
 
-bool Channel::GetInvite() const
-{
-    return inv_only;
+bool Channel::IsAdmin(int fd) {
+    std::map<int, Client>::iterator it = this->admins.begin();
+
+
+    while (it != this->admins.end()){
+        if (it->second.GetFd() == fd)
+            return (true);
+        it++;
+    }
+
+    return (false);
 }

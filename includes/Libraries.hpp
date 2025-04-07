@@ -58,6 +58,9 @@
 
 #define RPL_PARTMSG(nickname, channel) \
     (":" + nickname + " PART " + channel + CRLF)
+    
+#define RPL_MODEMSG(nickname, username, channelname, mode, target) \
+    (":" + nickname + "!" + username + " MODE " + channelname + " " + mode + " " + target + CRLF)
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) \
     (":myserver 482 " + nickname + " " + channel + " :You're not a channel operator" + CRLF)

@@ -29,8 +29,10 @@ class Channel {
 		const std::map<int, Client> GetInvited() const;
 		bool GetInvite() const;
 		int GetLimit() const;
-
-		Client *GetInvitedByNick(std::string nickname);
+		
+		Client	*GetAdminByNick(std::string nickname);
+		Client	*GetClientByNick(std::string nickname);
+		Client	*GetInvitedByNick(std::string nickname);
 
 		void SetTopic(const std::string topic);
 		void SetPassword(const std::string password);
@@ -42,9 +44,16 @@ class Channel {
 		void AddInvited(Client &client);
 
 		void RemoveClient(int fd);
+		void RemoveClientNick(std::string nick);
+
+		void RemoveAdmin(std::string nick);
+
+		void RemoveInvited(std::string nick);
+
 		void SendToAll(const std::string &reply, int fd, Server &server);
 		void ClearClients();
 		bool GetClientInChannel(const std::string &nickname);
+		bool IsAdmin(int fd);
 		std::string ClientChannelList();
 
 };
