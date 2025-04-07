@@ -33,7 +33,7 @@ void Invite::execute(int fd, const std::string &line)
 
             //Check if client being invited exists
             if (!i_client){
-                server.sendResponse(":server 401 " + client->GetNickname() + " " + word + " :No such nick\r\n", fd);
+                server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
                 return ;
             }
         }

@@ -10,6 +10,7 @@ void Topic::execute(int fd, const std::string &line)
     std::istringstream iss(line);
     std::vector<std::string> tokens;
     std::string token;
+    std::string cmd = "TOPIC";
 
     while (std::getline(iss, token, ' ')) {
         tokens.push_back(token);
@@ -17,7 +18,7 @@ void Topic::execute(int fd, const std::string &line)
 
     // Ensure correct command format
     if (tokens.size() < 2) {
-        //this->server.sendResponse(ERR_NEEDMOREPARAMS("TOPIC"), fd);
+        this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return;
     }
 
@@ -31,9 +32,8 @@ void Topic::execute(int fd, const std::string &line)
         return;
     }
 
-
     // Check if topic is restricted and user is an operator
-    /* if (channel->GetTopicRestricted() && !channel->IsOperator(client)) {
+    /* if (channel->GetTopicRestricted() && !channel->IsAdmin(client)) {
         this->server.sendResponse(ERR_CHANOPRIVSNEEDED(client->GetNickname(), channelName), fd);
         return;
     } */
@@ -42,21 +42,18 @@ void Topic::execute(int fd, const std::string &line)
     if (tokens.size() > 2) {
         size_t pos = line.find(":");
         if (pos == std::string::npos) {
-            //this->server.sendResponse(ERR_NEEDMOREPARAMS("TOPIC"), fd);
+            this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
             return;
         }
 
         std::string newTopic = line.substr(pos + 1); // Extract everything after ':'
         
-        cout << "Setting topic for " << channelName << " to: " << newTopic << endl; // Debugging
-
         channel->SetTopic(newTopic);
-
-        cout << "topic: " << channel->GetTopic() << endl;
 
         // Broadcast to all users in the channel
         std::string response = RPL_TOPICMSG(client->GetNickname(), channelName, newTopic);
         channel->SendToAll(response, fd, this->server);
+        this->server.sendResponse(response, fd);
     } 
     else {
         // If no topic is provided, return the current topic

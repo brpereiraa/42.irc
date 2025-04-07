@@ -1,6 +1,7 @@
 TODO:
-- name/topic channel
 - mode
 - check if invited user is already in message (message might be wrong)
 - part/close
 - part -> check missing arguments message
+- invite FUCKED
+- case sensitive -> marcela
