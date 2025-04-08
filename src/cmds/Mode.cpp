@@ -68,21 +68,42 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
         //Handle set invite positive/negative
         if (*str_it == 'i'){
-            if (!value)
+            if (!value){
                 this->server.GetChannel(target)->SetInvite(false);
-            else
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-i", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-i", ""), fd, this->server);
+            }
+            else {
                 this->server.GetChannel(target)->SetInvite(true);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+i", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+i", ""), fd, this->server);
+            }
         }
 
-        //
-        else if (*str_it == 't')
-            ;        
+
+        //Handle topic restricted positive/negative
+        else if (*str_it == 't') { 
+            if (!value){
+                this->server.GetChannel(target)->SetTopicRestricted(false);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-t", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-t", ""), fd, this->server);
+            }
+            else {
+                this->server.GetChannel(target)->SetTopicRestricted(true);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+t", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+t", ""), fd, this->server);
+            }
+        }
+
 
         //Handle channel password
         else if (*str_it == 'k'){
             //Remove password from channel
-            if (!value)
+            if (!value){
                 this->server.GetChannel(target)->SetPassword("");
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-k", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-k", ""), fd, this->server);
+            }
 
             //Set password on channel
             else {
@@ -94,14 +115,23 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                 }
                 
                 this->server.GetChannel(target)->SetPassword(*arg_it);
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+k", *arg_it), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+k", *arg_it), fd, this->server);
                 arg_it++;
             }
 
         }
 
-        
+
+        //Handle moderation
         else if (*str_it == 'o') {
             channel = this->server.GetChannel(target);
+
+            if (arg_it == args.end()){
+                this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                str_it++;
+                continue ;
+            }
 
             //Add client to admin first. Remove from client later
             if (!value) {
@@ -119,6 +149,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                 this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd);
 
             }
+            arg_it++;
         }
             
 
@@ -129,6 +160,8 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             if (!value){
                 this->server.GetChannel(target)->SetLimit(-1);
                 arg_it++;
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-l", ""), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "-l", ""), fd, this->server);
             }
 
             //Set limit to whatever argument
@@ -139,7 +172,9 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                     str_it++;
                     continue ;
                 }
-
+                
+                this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+l", *arg_it), fd);
+                this->server.GetChannel(target)->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), target, "+l", *arg_it), fd, this->server);
                 this->server.GetChannel(target)->SetLimit(std::atoi((*arg_it).c_str())); 
                 arg_it++;
             }

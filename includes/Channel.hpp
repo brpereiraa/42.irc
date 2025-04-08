@@ -9,6 +9,7 @@ class Channel {
 	private:
 		int usr_limit;
 		bool inv_only;
+		bool topic_restricted;
 		std::string name;
 		std::string topic;
 		std::string password;
@@ -28,6 +29,7 @@ class Channel {
 		const std::map<int, Client> GetAdmins() const;
 		const std::map<int, Client> GetInvited() const;
 		bool GetInvite() const;
+		bool GetTopicRestricted() const;
 		int GetLimit() const;
 		
 		Client	*GetAdminByNick(std::string nickname);
@@ -36,7 +38,8 @@ class Channel {
 
 		void SetTopic(const std::string topic);
 		void SetPassword(const std::string password);
-		void SetInvite(const bool value);
+		void SetInvite(const bool value);\
+		void SetTopicRestricted(const bool value);
 		void SetLimit(const int limit );
 
 		void AddClient(Client &client);

@@ -33,10 +33,10 @@ void Topic::execute(int fd, const std::string &line)
     }
 
     // Check if topic is restricted and user is an operator
-    /* if (channel->GetTopicRestricted() && !channel->IsAdmin(client)) {
+     if (channel->GetTopicRestricted() && !channel->IsAdmin(client->GetFd())) {
         this->server.sendResponse(ERR_CHANOPRIVSNEEDED(client->GetNickname(), channelName), fd);
         return;
-    } */
+    } 
 
     // If user is setting a new topic
     if (tokens.size() > 2) {

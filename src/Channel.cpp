@@ -4,6 +4,7 @@ Channel::Channel() {}
 Channel::Channel(const std::string name){ 
     this->name = name; 
     this->inv_only = false;
+    this->topic_restricted = false;
 }
 
 Channel::~Channel() {}
@@ -16,12 +17,14 @@ const   std::map<int, Client> Channel::GetAdmins() const { return this->admins; 
 const   std::map<int, Client> Channel::GetInvited() const { return this->admins; }
 int     Channel::GetLimit() const { return this->usr_limit; }
 bool    Channel::GetInvite() const { return inv_only; }
+bool    Channel::GetTopicRestricted() const { return topic_restricted; }
 
 
 void    Channel::SetPassword(const std::string password) { this->password = password; }
 void    Channel::SetTopic(const std::string topic) { this->topic = topic; }
 void    Channel::SetInvite(const bool value) { this->inv_only = value; }
 void    Channel::SetLimit(const int limit) { this->usr_limit = limit; }
+void    Channel::SetTopicRestricted(const bool value) { this->topic_restricted = value; }
 
 Client *Channel::GetInvitedByNick(std::string nickname){
     std::map<int, Client>::iterator it = this->invited.begin();
