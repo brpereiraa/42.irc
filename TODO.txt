@@ -1,7 +1,7 @@
 TODO:
 - name/topic channel
 - mode -> Send appropriate response in case of mode change.
-- check if invited user is already in message (message might be wrong)
+- check if invited user is already in message (message might be wrong)(feito acho)
 - part/close
 - part -> check missing arguments message
 - invite FUCKED
