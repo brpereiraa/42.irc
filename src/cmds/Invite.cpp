@@ -61,21 +61,15 @@ void Invite::execute(int fd, const std::string &line)
 
     //verifica se o inviter esta no channel a qual quer convidar
     if (!inviter_in_channel) {
-        server.sendResponse(":myserver 442 " + client->GetNickname() + " " + channel->GetName() + " :You're not on that channel\r\n", fd);
+        server.sendResponse(ERR_INVITERINCHANNEL(client->GetNickname(), channel->GetName()), fd);
         return;
     }
 
     //verifica se o channel e invite only e se o inviter pode convidar
     if (channel->GetInvite() && channel->GetAdmins().find(fd) == channel->GetAdmins().end()) {
-        server.sendResponse(":myserver 482 " + client->GetNickname() + " " + channel->GetName() + " :You're not channel operator\r\n", fd);
+        server.sendResponse(ERR_USERCANINVITE(client->GetNickname(), channel->GetName()), fd);
         return;
     }
-
-
-    // if (channel->GetClientInChannel(i_client->GetNickname())) {
-    //     server.sendResponse(":myserver 443 " + client->GetNickname() + " " + i_client->GetNickname() + " " + channel->GetName() + " :is already on channel\r\n", fd);
-    //     return;
-    // }
 
     // if (channel_clients.size() >= channel->GetLimit()) {
     //     server.sendResponse(":myserver 471 " + client->GetNickname() + " " + channel->GetName() + " :Cannot invite, channel is full\r\n", fd);
@@ -89,7 +83,7 @@ void Invite::execute(int fd, const std::string &line)
     }
     
     if (channel->GetClientInChannel(i_client->GetNickname())){
-        server.sendResponse(":myserver 443 " + client->GetNickname() + " " + channel->GetName() + " :Already in channel\r\n", fd);
+        server.sendResponse(ERR_ALREADYINCHANNEL(client->GetNickname(), channel->GetName()), fd);
         return ;
     }
 
