@@ -59,6 +59,9 @@
 #define RPL_ENDOFNAMES(nickname, channelname) \
     (":myserver 366 " + nickname + " " + channelname + " :End of /NAMES list" + CRLF)
 
+#define RPL_KICKMSG(nickname, channelname, target) \
+    (":" + nickname + " KICK " + channelname + " " + target + CRLF)
+
 #define RPL_TOPICIS(nickname, channelname, topic) \
     (":myserver 332 " + nickname + " " + channelname + " :" + topic + CRLF)
 

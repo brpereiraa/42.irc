@@ -28,9 +28,6 @@ bool Kick::isAdmin(const Client &client, const Channel &channel)
 
 void Kick::execute(int fd, const std::string& line)
 {
-    cout << fd << endl;
-    cout << line << endl;
-    cout << "entrou kick" << endl;
     // Split the line into arguments
     std::stringstream line_stream(line);
     std::string temp;
@@ -78,13 +75,16 @@ void Kick::execute(int fd, const std::string& line)
         std::cerr << ":myserver 482: You're not a channel operator" << std::endl;
     }
 
-    // if (tokens.size() == 3)
-	// {
-	// 	server.sendResponse(client->GetNickname(), "KICK", tokens[1] + " " + tokens[2] + " :You have been kicked from channel");
-	// }
-	// else
-	// {
-	// 	server.sendResponse(client->GetNickname(), "KICK", tokens[1] + " " + tokens[2] + " :" + tokens[3]);
-	// }
-	// channel->RemoveClientNick(client->GetNickname());
+    if (tokens.size() == 3)
+	{
+        this->server.sendResponse(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], tokens[2]), fd);
+        channel->SendToAll(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], tokens[2]), fd, this->server);
+	}
+	else
+	{
+        this->server.sendResponse(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], tokens[2]), fd);
+        channel->SendToAll(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], tokens[2]), fd, this->server);
+	}
+
+	channel->RemoveClientNick(client->GetNickname());
 }
