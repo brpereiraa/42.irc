@@ -98,6 +98,9 @@
 #define RPL_TOPICMSG(nickname, channel, topic) \
     (":" + nickname + " TOPIC " + channel + " :" + topic + CRLF)
 
+#define ERR_NOSUCHNICKCHAN(client, nickname) \
+    (":" + client + " " + nickname + " :No such nick/channel" + CRLF)
+
 #define ERR_NOSUCHNICK(nickname, target) \
     (":myserver 401 " + nickname + " " + target + " :No such nick/channel" + CRLF)
 
