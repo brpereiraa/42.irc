@@ -1,5 +1,8 @@
 #include "ACommands.hpp"
-
+#include "Client.hpp"
+#include "Server.hpp"
+#include "Channel.hpp"
+#include "Parser.hpp"
 
 Kick::Kick(Server &server) : ACommands(server) 
 {
@@ -31,32 +34,57 @@ void Kick::execute(int fd, const std::string& line)
     // Split the line into arguments
     std::stringstream line_stream(line);
     std::string temp;
-    std::vector<std::string> args;
+    std::vector<std::string> tokens;
+    Channel *channel;
     
+    Client *client;
+    Client *client_kicker;
 
     while (line_stream >> temp) {
-        args.push_back(temp);
+        tokens.push_back(temp);
     }
 
-    if (args.size() < 2) {
-        std::cerr << "Error: Missing parameters\n";
-        return;
-    }
-
-    Client client;
-
-    if (args.size() >= 3 && (args[2][0] != ':' || args[2].size() > 1)) 
+    if (tokens.size() < 3)
     {
-        std::stringstream reason_stream;
-
-        for (size_t i = 2; i < args.size(); ++i) 
-        {
-            reason_stream << args[i] << " ";
-        }
-
-        std::string reason = reason_stream.str();
-        std::cout << "Reason: " << reason << std::endl;
+        std::cerr << ":myserver 461: Not enough parameters" << std::endl;
     }
 
-    std::cout << "Executed kick command for client: " << client.GetNickname() << std::endl;
+    channel = this->server.GetChannelByName(tokens[1]); 
+    if (!channel)
+    {
+        std::cerr << ":myserver 403: No such channel" << std::endl;
+    }
+
+    client = channel->GetClientByNick(tokens[2]);
+    if (!client)
+    {
+        std::cerr << ":myserver 401: No such nick" << std::endl;
+    }
+
+
+    if (!channel->GetClientByNick(tokens[2]) && !channel->GetAdminByNick(tokens[2]))
+    {
+        std::cerr << ":myserver 441: User not in channel" << std::endl;
+    }
+
+    client_kicker = this->server.GetClient(fd);
+    if (!channel->GetClientByNick(client_kicker->GetNickname()) && !channel->GetAdminByNick(client_kicker->GetNickname()))
+    {
+        std::cerr << ":myserver 442: You're not on that channel" << std::endl;
+    }
+
+    if (!channel->GetAdminByNick(client_kicker->GetNickname()))
+    {
+        std::cerr << ":myserver 482: You're not a channel operator" << std::endl;
+    }
+
+    // if (tokens.size() == 3)
+	// {
+	// 	server.sendResponse(client->GetNickname(), "KICK", tokens[1] + " " + tokens[2] + " :You have been kicked from channel");
+	// }
+	// else
+	// {
+	// 	server.sendResponse(client->GetNickname(), "KICK", tokens[1] + " " + tokens[2] + " :" + tokens[3]);
+	// }
+	// channel->RemoveClientNick(client->GetNickname());
 }

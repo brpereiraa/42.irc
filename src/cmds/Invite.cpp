@@ -41,10 +41,10 @@ void Invite::execute(int fd, const std::string &line)
     }
 
     //Check if user exists
-    if (!i_client){
-        server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
-        return ;
-    }
+    // if (!i_client){
+    //     server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
+    //     return ;
+    // }
 
     //Check params
     if (i != 3) {
