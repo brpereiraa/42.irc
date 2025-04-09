@@ -61,10 +61,12 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
     Channel *channel;
 
     Client *client = this->server.GetClient(fd);
+    Client *tmp;
     value = true;
 
     //Handle modes
     while (str_it != modes.end()){
+        std::cout << "Value: " << value << std::endl;
 
         //Handle set invite positive/negative
         if (*str_it == 'i'){
@@ -133,8 +135,16 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                 continue ;
             }
 
+
             //Add client to admin first. Remove from client later
             if (!value) {
+                
+                tmp = channel->GetAdminByNick(*arg_it);
+                if (!tmp){
+                    std::cout << "User not in channel" << std::endl;
+                    return ;
+                }
+
                 channel->AddClient(*channel->GetAdminByNick(*arg_it));
                 channel->RemoveAdmin(*arg_it);
                 channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "-o", *arg_it), fd, this->server);
@@ -143,6 +153,13 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             
             //Add client to admin first. Remove from admin later
             else {
+
+                tmp = channel->GetClientByNick(*arg_it);
+                if (!tmp){
+                    std::cout << "User not in channel" << std::endl;
+                    return ;
+                }
+
                 channel->AddAdmin(*channel->GetClientByNick(*arg_it));
                 channel->RemoveClientNick(*arg_it);
                 channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd, this->server);
@@ -180,16 +197,17 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             }
         }
 
-        //Check if it's invalid characters/mode
-        else if (*str_it != '+' && *str_it != '-')
-            this->server.sendResponse(":myserver 501 " + client->GetNickname() + " :Unknown MODE flag\r\n", fd); 
-        
-        //Reset to true after every character
-        value = true;
+        else if (*str_it == '+')
+            value = true;
 
         //Change to false if its minus
-        if (*str_it == '-')
+        else if (*str_it == '-')
             value = false; 
+
+        //Check if it's invalid characters/mode
+        else
+            this->server.sendResponse(":myserver 501 " + client->GetNickname() + " :Unknown MODE flag\r\n", fd); 
+        
 
         str_it++;
     }

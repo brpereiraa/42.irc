@@ -53,7 +53,7 @@ Client *Channel::GetClientByNick(std::string nickname) {
 Client *Channel::GetAdminByNick(std::string nickname) {
     std::map<int, Client>::iterator it = this->admins.begin();
 
-    while (it != this->clients.end()){
+    while (it != this->admins.end()){
         if (it->second.GetNickname() == nickname)
             return (&it->second);
         it++;
