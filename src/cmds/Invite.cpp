@@ -32,8 +32,8 @@ void Invite::execute(int fd, const std::string &line)
             i_client = server.GetClientByNickname(word);
 
             //Check if client being invited exists
-            if (!i_client){
-                server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
+            if (!i_client) {
+                server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), client->GetNickname()), fd);
                 return ;
             }
         }
