@@ -11,7 +11,6 @@ void Invite::execute(int fd, const std::string &line)
 	std::string word;
     Channel *channel;
 	Client *client = server.GetClient(fd);
-    bool inviter_in_channel = false;
 	Client *i_client;
 	int i;
 	
@@ -28,39 +27,33 @@ void Invite::execute(int fd, const std::string &line)
 
 	while (stream >> word){
         i++;
-        if (i == 2){
+        if (i == 2)
             i_client = server.GetClientByNickname(word);
 
-            //Check if client being invited exists
-            if (!i_client){
-                server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
-                return ;
-            }
-        }
-
         if (i == 3)
-            channel = server.GetChannel(word);
+            channel = server.GetChannelByName(word);
     };
 
-    //verifica os parametros
+    //Check if channel exists
+    if (!channel){
+        std::cout << "Non existant channel" << std::endl;
+        return ;
+    }
+
+    //Check if user exists
+    if (!i_client){
+        server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
+        return ;
+    }
+
+    //Check params
     if (i != 3) {
         server.sendResponse(":myserver 461 " + client->GetNickname() + " INVITE :Not enough parameters\r\n", fd);
         return;
     }
 
     //verifica se o inviter esta no channel
-    std::map<int, Client> channel_clients = channel->GetClients();
-    std::map<int, Client>::const_iterator it = channel_clients.begin();
-    while (it != channel_clients.end()) {
-        if (it->second.GetNickname() == client->GetNickname()) {
-            inviter_in_channel = true;
-            break;
-        }
-        ++it;
-    }
-
-    //verifica se o inviter esta no channel a qual quer convidar
-    if (!inviter_in_channel) {
+    if (!channel->GetClientByNick(client->GetNickname()) && !channel->GetAdminByNick(client->GetNickname())) {
         server.sendResponse(ERR_INVITERINCHANNEL(client->GetNickname(), channel->GetName()), fd);
         return;
     }
@@ -87,7 +80,7 @@ void Invite::execute(int fd, const std::string &line)
         return ;
     }
 
-    server.sendResponse((":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost INVITE " + i_client->GetNickname() + channel->GetName() + "\r\n"), fd);
+    server.sendResponse((":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost INVITE " + i_client->GetNickname() + " :" + channel->GetName() + "\r\n"), fd);
     server.sendResponse(":" + client->GetNickname() + " INVITE " +  i_client->GetNickname() + " :" + channel->GetName() + "\r\n",  i_client->GetFd());
 
     channel->AddInvited(*i_client);

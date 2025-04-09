@@ -83,7 +83,7 @@ void Channel::AddInvited(Client &client) {
 	if (this->invited.count(client.GetFd()))
         ;
 	else
-		this->clients[client.GetFd()] = client;
+		this->invited[client.GetFd()] = client;
 }
 
 void Channel::RemoveClient(int fd){ this->clients.erase(fd); }
