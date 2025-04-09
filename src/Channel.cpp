@@ -38,16 +38,24 @@ Client *Channel::GetInvitedByNick(std::string nickname){
     return (NULL);
 }
 
-Client *Channel::GetClientByNick(std::string nickname) {
+Client* Channel::GetClientByNick(std::string nickname) {
+    // Search in regular clients
     std::map<int, Client>::iterator it = this->clients.begin();
-
-    while (it != this->clients.end()){
+    while (it != this->clients.end()) {
         if (it->second.GetNickname() == nickname)
-            return (&it->second);
-        it++;
+            return &it->second;
+        ++it;
     }
-    
-    return (NULL);
+
+    // Search in admins
+    std::map<int, Client>::iterator admin_it = this->admins.begin();
+    while (admin_it != this->admins.end()) {
+        if (admin_it->second.GetNickname() == nickname)
+            return &admin_it->second;
+        ++admin_it;
+    }
+
+    return NULL;
 }
 
 Client *Channel::GetAdminByNick(std::string nickname) {

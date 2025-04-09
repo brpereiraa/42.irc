@@ -98,9 +98,6 @@
 #define RPL_TOPICMSG(nickname, channel, topic) \
     (":" + nickname + " TOPIC " + channel + " :" + topic + CRLF)
 
-#define ERR_NOSUCHNICKCHAN(client, nickname) \
-    (":" + client + " " + nickname + " :No such nick/channel" + CRLF)
-
 #define ERR_NOSUCHNICK(nickname, target) \
     (":myserver 401 " + nickname + " " + target + " :No such nick/channel" + CRLF)
 
@@ -109,9 +106,10 @@
 
 #define ERR_USERCANINVITE(nickname, name) \
     (":myserver 482 " + nickname + " " + name + " :You're not channel operator" + CRLF)
-    
+
 #define ERR_ALREADYINCHANNEL(nickname, name) \
     (":myserver 443 " + nickname + " " + name + " :Already in channel" + CRLF)
+
 
 #define RED "\033[0;31m"
 #define RESET "\033[0m"

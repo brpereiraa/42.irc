@@ -13,6 +13,7 @@ void Invite::execute(int fd, const std::string &line)
 	Client *client = server.GetClient(fd);
 	Client *i_client;
 	int i;
+    std::string cmd = "INVITE";
 	
     channel = NULL;
 	client = server.GetClient(fd);
@@ -24,8 +25,7 @@ void Invite::execute(int fd, const std::string &line)
 		return ;
 	}
 	
-
-	while (stream >> word){
+	while (stream >> word) {
         i++;
         if (i == 2)
             i_client = server.GetClientByNickname(word);
@@ -34,21 +34,22 @@ void Invite::execute(int fd, const std::string &line)
             channel = server.GetChannelByName(word);
     };
 
-    //Check if channel exists
+    //Check if channel exists 
     if (!channel){
-        std::cout << "Non existant channel" << std::endl;
+        server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), word), fd);
         return ;
     }
 
-    //Check if user exists
+    //Check if user exists -> needs a way to store the client name
     // if (!i_client){
-    //     server.sendResponse(ERR_NOSUCHNICKCHAN(client->GetNickname(), channel->GetName()), fd);
+    //     server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), word), fd);
     //     return ;
     // }
 
-    //Check params
+    //cout << i << endl;
+    //Check params -> not working cause i is 3 even if command line is just "/INVITE a"
     if (i != 3) {
-        server.sendResponse(":myserver 461 " + client->GetNickname() + " INVITE :Not enough parameters\r\n", fd);
+        server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return;
     }
 

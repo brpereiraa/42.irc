@@ -4,34 +4,54 @@ Part::Part(Server &server): ACommands(server){
 	this->server = server;
 }
 
-void Part::execute(int fd, const std::string &line){
+void Part::execute(int fd, const std::string &line) {
     std::vector<std::string> tokens;
     std::istringstream ss(line);
     std::string token;
     Channel *channel = NULL;
-
-    std::cout << "Part command received" << std::endl;
+    std::string cmd = "PART";
 
     while (std::getline(ss, token, ' ')) {
         tokens.push_back(token);
     }
 
     if (tokens.size() < 2) {
-        std::cout << "Not enough parameters" << std::endl;
-        // this->server.sendResponse(ERR_NEEDMOREPARAMS(token[0]), fd);
-        return ;
+        this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
+        return;
     }
 
-    channel = this->server.GetChannel(tokens[1]);
+    std::string channelsString = tokens[1];
+    std::vector<std::string> channelTokens;
+    std::istringstream channelStream(channelsString);
 
-    for (size_t i = 1; i < tokens.size(); i++) {
-        if (tokens[i][0] != '#') {
-            this->server.sendResponse(ERR_NOSUCHCHANNEL(this->server.GetClient(fd)->GetNickname(), tokens[i]), fd);
-            continue ;
+    while (std::getline(channelStream, token, ',')) {
+        channelTokens.push_back(token);
+    }
+
+    Client *client = this->server.GetClient(fd);
+    if (!client) return;
+
+    for (size_t i = 0; i < channelTokens.size(); ++i) {
+        const std::string &channelName = channelTokens[i];
+
+        if (channelName.empty() || channelName[0] != '#') {
+            this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);
+            continue;
         }
-        std::cout << "Channel: " << tokens[i] << std::endl;
-        this->server.GetChannel(tokens[i])->RemoveClient(fd);
-        channel->SendToAll(RPL_PARTMSG(this->server.GetClient(fd)->GetNickname(), tokens[i]), fd, this->server);
-        this->server.sendResponse(RPL_PARTMSG(this->server.GetClient(fd)->GetNickname(), tokens[i]), fd);
+
+        channel = this->server.GetChannel(channelName);
+        if (!channel) {
+            this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);
+            continue;
+        }
+
+        if (!channel->GetClientByNick(client->GetNickname())) {
+            this->server.sendResponse(ERR_INVITERINCHANNEL(client->GetNickname(), channelName), fd);
+            continue;
+        }
+
+        channel->RemoveClient(fd);
+        channel->SendToAll(RPL_PARTMSG(client->GetNickname(), channelName), fd, this->server);
+        this->server.sendResponse(RPL_PARTMSG(client->GetNickname(), channelName), fd);
     }
 }
