@@ -66,7 +66,6 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
     //Handle modes
     while (str_it != modes.end()){
-        std::cout << "Value: " << value << std::endl;
 
         //Handle set invite positive/negative
         if (*str_it == 'i'){

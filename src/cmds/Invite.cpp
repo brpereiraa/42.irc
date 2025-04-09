@@ -46,7 +46,6 @@ void Invite::execute(int fd, const std::string &line)
     //     return ;
     // }
 
-    //cout << i << endl;
     //Check params -> not working cause i is 3 even if command line is just "/INVITE a"
     if (i != 3) {
         server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
@@ -76,7 +75,7 @@ void Invite::execute(int fd, const std::string &line)
         return ;
     }
     
-    if (channel->GetClientInChannel(i_client->GetNickname())){
+    if (channel->GetClientInChannel(i_client->GetNickname()) || channel->GetAdminByNick(i_client->GetNickname())) {
         server.sendResponse(ERR_ALREADYINCHANNEL(client->GetNickname(), channel->GetName()), fd);
         return ;
     }

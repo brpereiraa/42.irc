@@ -47,14 +47,6 @@ Client* Channel::GetClientByNick(std::string nickname) {
         ++it;
     }
 
-    // Search in admins
-    std::map<int, Client>::iterator admin_it = this->admins.begin();
-    while (admin_it != this->admins.end()) {
-        if (admin_it->second.GetNickname() == nickname)
-            return &admin_it->second;
-        ++admin_it;
-    }
-
     return NULL;
 }
 
