@@ -46,6 +46,7 @@ class Channel {
 		void AddAdmin(Client &client);
 		void AddInvited(Client &client);
 
+		void removeClient(Client *client);
 		void RemoveClient(int fd);
 		void RemoveClientNick(std::string nick);
 

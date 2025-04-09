@@ -44,6 +44,7 @@ class Server {
         void setTime();
 
         bool addClient(Client &client);
+        bool existsChannel(std::string name) const;
         bool addChannel(Channel &channel);
         bool removeClient(int fd);
         bool removeChannel(std::string name);
