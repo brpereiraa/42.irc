@@ -40,11 +40,11 @@ void Invite::execute(int fd, const std::string &line)
         return ;
     }
 
-    //Check if user exists -> needs a way to store the client name
-    // if (!i_client){
-    //     server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), word), fd);
-    //     return ;
-    // }
+    // Check if user exists -> needs a way to store the client name
+    if (!i_client){
+        server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), word), fd);
+        return ;
+    }
 
     //Check params -> not working cause i is 3 even if command line is just "/INVITE a"
     if (i != 3) {
@@ -64,10 +64,10 @@ void Invite::execute(int fd, const std::string &line)
         return;
     }
 
-    // if (channel_clients.size() >= channel->GetLimit()) {
-    //     server.sendResponse(":myserver 471 " + client->GetNickname() + " " + channel->GetName() + " :Cannot invite, channel is full\r\n", fd);
-    //     return;
-    // }
+    if ((channel->GetAdmins().size() + channel->GetClients().size()) >= (size_t)channel->GetLimit()) {
+        server.sendResponse(":myserver 471 " + client->GetNickname() + " " + channel->GetName() + " :Cannot invite, channel is full\r\n", fd);
+        return;
+    }
 
     //verifica se o channel existe
     if (!channel){
