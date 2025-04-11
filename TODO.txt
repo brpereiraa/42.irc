@@ -1,11 +1,23 @@
 TODO:
-- mode/kick messages
-- case sensitive -> user?
-- part needs to remove admin
-- privmsg : and others that contains it
+ 
+--> CTRL D -> if buffer does not end with \r\n, append with the next buffer, just one time
+--> part when empty channel its removed
+
+vasco:
+- signal handler sigpipe (if 13 ignores) and CTRL D
 - kick doesnt kick admins
-- mode is not removing the operator
-- join com pass 
+- part needs to remove admin
+
+marcela:
+- mode/kick messages/ message codes 
+- privmsg : and others that contains it
+- join com pass
+- limit user count on join 
+
+bruno:
+- nick change within channel and then part 
+- nick send to all users
+- pass with *
+- case sensitive -> user?
 - change nick
-- message codes 
-- signal handler sigpipe (if 13 ignores)
+- mode is not removing the operator

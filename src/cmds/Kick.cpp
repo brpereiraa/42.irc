@@ -101,7 +101,9 @@ void Kick::execute(int fd, const std::string& line)
             channel->SendToAll(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], *it), fd, this->server);
         }
 
-        channel->RemoveClientNick(client->GetNickname());
-
+        // if in client
+            channel->RemoveClientNick(client->GetNickname());
+        // if in isAdmin
+            // removeADmin
     }
 }

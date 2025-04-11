@@ -41,7 +41,7 @@ bool Join::initialChecksJoin(int fd, size_t i, std::vector<std::string> tokens, 
     }
 
     // If the channel is full
-    if (channel->GetLimit() > 0 && channel->GetClients().size() >= static_cast<size_t>(channel->GetLimit())) {
+    if (channel->GetLimit() > 0 && (channel->GetClients().size() + channel->GetAdmins().size()) >= static_cast<size_t>(channel->GetLimit())) {
         this->server.sendResponse(ERR_CHANNELISFULL(newClient->GetNickname(), channel->GetName()), fd);
         return true;
     }
