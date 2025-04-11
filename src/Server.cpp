@@ -5,9 +5,10 @@ bool Server::signal = false;
 void Server::sendResponse(std::string response, int fd) {
     // Convert std::string to const char* for send() function
     const char* msg = response.c_str();
-    if (send(fd, msg, response.size(), 0) == -1) {
-        std::cerr << "Response send() failed: " << strerror(errno) << std::endl;
-    }
+    // if (send(fd, msg, response.size(), 0) == -1) {
+    //     std::cerr << "Response send() failed: " << strerror(errno) << std::endl;
+    // }
+    send(fd, msg, response.size(), 0);
 }
 
 void Server::SignalHandler(int signum)
@@ -15,6 +16,13 @@ void Server::SignalHandler(int signum)
     (void)signum;
     cout << endl << "Signal received!" << endl;
     Server::signal = true;
+    if (signum == SIGPIPE) {
+            std::cout << "SIGPIPE received: ignoring..." << std::endl;
+        } else {
+            std::cout << std::endl << "Signal received!" << std::endl;
+            Server::signal = true;
+        }
+
 }
 
 void Server::ClearClients(int fd)
