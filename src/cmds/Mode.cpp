@@ -27,6 +27,7 @@ void Mode::execute(int fd, const std::string &line)
     };
 
     if (target.empty()){
+        //this->server.sendResponse( ,fd);
         std::cout << "Missing target" << std::endl;
         return ;
     }

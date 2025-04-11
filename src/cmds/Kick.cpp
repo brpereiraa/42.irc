@@ -35,16 +35,13 @@ void Kick::execute(int fd, const std::string& line)
     std::vector<std::string> users;
     Channel *channel;
 
-
-    
     Client *client;
     Client *client_kicker;
 
     while (line_stream >> temp) {
         tokens.push_back(temp);
     }
-
-
+ 
     if (tokens.size() < 3)
     {
         // this->server.sendResponse(ERR_NEEDMOREPARAMS)
@@ -73,7 +70,6 @@ void Kick::execute(int fd, const std::string& line)
             std::cerr << ":myserver 401: No such nick" << std::endl;
             return ;
         }
-
 
         if (!channel->GetClientByNick(*it) && !channel->GetAdminByNick(*it))
         {

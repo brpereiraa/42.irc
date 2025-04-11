@@ -1,6 +1,11 @@
 TODO:
-- mode -> Send appropriate response in case of mode change.
-- check if invited user is already in message (message might be wrong)(feito acho)
-- part -> check behaviour join after part 
-- invite FUCKED -> seg fault if client doesnt exist (if commented, check comments in file lines 43 and 50), "invite a" seg fault
+- mode/kick messages
 - case sensitive -> user?
+- part needs to remove admin
+- privmsg : and others that contains it
+- kick doesnt kick admins
+- mode is not removing the operator
+- join com pass 
+- change nick
+- message codes 
+- signal handler sigpipe (if 13 ignores)
