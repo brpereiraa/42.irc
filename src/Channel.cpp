@@ -103,9 +103,9 @@ void Channel::RemoveClientNick(std::string nick){
 void Channel::RemoveAdmin(std::string nick){
     std::map<int, Client>::iterator it = this->admins.begin();
 
-    while (it != this->clients.end()){
+    while (it != this->admins.end()){
         if (it->second.GetNickname() == nick){
-            clients.erase(it->second.GetFd());
+            admins.erase(it->second.GetFd());
             return ;
         }
         it++;

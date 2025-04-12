@@ -50,9 +50,14 @@ void Part::execute(int fd, const std::string &line) {
             continue;
         }
 
-        // if in client
-        channel->RemoveClient(fd);
-        // if in admin
+        if (channel->GetClientByNick(client->GetNickname()))
+        {
+            channel->RemoveClient(fd);
+        }
+        if (channel->GetAdminByNick(client->GetNickname()))
+        {
+            channel->RemoveAdmin(client->GetNickname());
+        }
         // remove admin
         channel->SendToAll(RPL_PARTMSG(client->GetNickname(), channelName), fd, this->server);
         this->server.sendResponse(RPL_PARTMSG(client->GetNickname(), channelName), fd);

@@ -67,7 +67,7 @@ void Kick::execute(int fd, const std::string& line)
     for (std::vector<std::string>::iterator it = users.begin(); it != users.end(); ++it) {
         std::cout << "User: " << *it << std::endl;
 
-        client = channel->GetClientByNick(*it);
+        client = channel->GetClientByNick(*it) ? channel->GetClientByNick(*it) : channel->GetAdminByNick(*it);
         if (!client)
         {
             std::cerr << ":myserver 401: No such nick" << std::endl;
@@ -105,7 +105,15 @@ void Kick::execute(int fd, const std::string& line)
             channel->SendToAll(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], *it), fd, this->server);
         }
 
-        channel->RemoveClientNick(client->GetNickname());
+        //channel->RemoveClientNick(client->GetNickname());
 
+        if (channel->GetAdminByNick(client->GetNickname()))
+        {
+            channel->RemoveAdmin(client->GetNickname());
+        }
+        else if (channel->GetClientByNick(client->GetNickname()))
+        {
+            channel->RemoveClientNick(client->GetNickname());
+        }
     }
 }
