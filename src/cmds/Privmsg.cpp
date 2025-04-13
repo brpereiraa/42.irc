@@ -1,12 +1,10 @@
 #include "ACommands.hpp"
 
-Privmsg::Privmsg(Server &server) : ACommands(server) 
-{
+Privmsg::Privmsg(Server &server) : ACommands(server) {
     this->server = server;
 }
 
-void Privmsg::execute(int fd, const std::string &line)
-{
+void Privmsg::execute(int fd, const std::string &line) {
     std::vector<std::string> tokens;
     std::istringstream ss(line);
     std::string token;
@@ -15,39 +13,66 @@ void Privmsg::execute(int fd, const std::string &line)
         tokens.push_back(token);
     }
 
-    //TODO: criar func de parser dos comandos e check de erros possiveis
-    if (tokens.size() < 3) {  // Needs at least: "PRIVMSG <target> <message>"
-        std::cerr << "Error: Invalid PRIVMSG format" << std::endl;
-        return;
-    }
-
-    std::string target = tokens[1];  // Target (channel or user)
-    std::string message = line.substr(line.find(" :", tokens[0].length()) + 2);
-
     Client* sender = this->server.GetClient(fd);
-    if (!sender) {
-        std::cerr << "Error: Sender not found" << std::endl;
+    if (!sender) return;
+
+    std::string cmd = "PRIVMSG";
+
+    if (tokens.size() < 2) {
+        this->server.sendResponse(ERR_NORECIPIENT(sender->GetNickname(), cmd), fd);
         return;
     }
 
-    std::string response = ":" + sender->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+    // Extract targets
+    std::vector<std::string> targets;
+    std::istringstream targetsStream(tokens[1]);
+    while (std::getline(targetsStream, token, ',')) {
+        targets.push_back(token);
+    }
 
-    // Check if the message is for a channel
-    if (target[0] == '#') {
-        Channel* channel = this->server.GetChannel(target);
-        if (channel) {
+    if (targets.size() > 10) {
+        this->server.sendResponse(ERR_TOOMANYTARGETS(sender->GetNickname(), tokens[1]), fd);
+        return;
+    }
+
+    // Extract message
+    std::string message;
+    size_t colonPos = line.find(" :");
+    if (colonPos != std::string::npos) {
+        message = line.substr(colonPos + 2);  // Everything after ' :'
+    } else if (tokens.size() >= 3) {
+        message = tokens[2];  // Just the third token as message
+    } else {
+        this->server.sendResponse(ERR_NOTEXTTOSEND(sender->GetNickname()), fd);
+        return;
+    }
+
+    // Send message to each target
+    for (std::vector<std::string>::iterator it = targets.begin(); it != targets.end(); ++it) {
+        std::string target = *it;
+        std::string response = ":" + sender->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+
+        if (target[0] == '#') {
+            Channel* channel = this->server.GetChannel(target);
+            if (!channel) {
+                this->server.sendResponse(ERR_NOSUCHCHANNEL(sender->GetNickname(), target), fd);
+                continue;
+            }
+
+            if (!channel->GetClientByNick(sender->GetNickname()) && !channel->GetAdminByNick(sender->GetNickname())) {
+                this->server.sendResponse(ERR_CANNOTSENDTOCHAN(sender->GetNickname(), target), fd);
+                continue;
+            }
+
             channel->SendToAll(response, fd, this->server);
         } else {
-            this->server.sendResponse("Error: Channel not found\r\n", fd);
-        }
-    }
-    // Otherwise, it's a private message to another user
-    else {
-        Client* recipient = this->server.GetClientByNickname(target);
-        if (recipient) {
+            Client* recipient = this->server.GetClientByNickname(target);
+            if (!recipient) {
+                this->server.sendResponse(ERR_NOSUCHNICK(sender->GetNickname(), target), fd);
+                continue;
+            }
+
             this->server.sendResponse(response, recipient->GetFd());
-        } else {
-            this->server.sendResponse("Error: User not found\r\n", fd);
         }
     }
 }

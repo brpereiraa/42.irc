@@ -17,6 +17,7 @@
 #include <map>
 #include <ctime>
 #include <memory>
+#include <string>
 
 #include "Client.hpp"
 #include "Server.hpp"
@@ -104,6 +105,9 @@
 #define ERR_NOSUCHNICK(nickname, target) \
     (":myserver 401 " + nickname + " " + target + " :No such nick/channel" + CRLF)
 
+#define ERR_USERNOTINCHANNEL(client, nick, channel) \
+    (":myserver 441 " + client + " " + nick + " " + channel + " :They aren't on that channel\r\n")
+
 #define ERR_INVITERINCHANNEL(nickname, name) \
     (":myserver 442 " + nickname + " " + name + " :You're not on that channel" + CRLF)
 
@@ -112,6 +116,24 @@
 
 #define ERR_ALREADYINCHANNEL(nickname, name) \
     (":myserver 443 " + nickname + " " + name + " :Already in channel" + CRLF)
+
+#define ERR_NORECIPIENT(nickname, command) \
+    (":myserver 411 " + nickname + " :No recipient given (" + command + ")" + CRLF)
+
+#define ERR_NOTEXTTOSEND(nickname) \
+    (":myserver 412 " + nickname + " :No text to send" + CRLF)
+
+#define ERR_CANNOTSENDTOCHAN(nickname, channel) \
+    (":myserver 404 " + nickname + " " + channel + " :Cannot send to channel" + CRLF)
+
+#define ERR_TOOMANYTARGETS(nickname, target) \
+    (":myserver 407 " + nickname + " " + target + " :Too many targets" + CRLF)
+
+#define ERR_UMODEUNKNOWNFLAG(nickname) \
+    (":myserver 501 " + nickname + " :Unknown MODE flag" + CRLF)
+
+#define ERR_USERSDONTMATCH(nickname) \
+    (":myserver 502 " + nickname + " :Can't change mode for other users" + CRLF)
 
 
 #define RED "\033[0;31m"

@@ -1,18 +1,11 @@
 TODO:
  
 --> CTRL D -> if buffer does not end with \r\n, append with the next buffer, just one time
---> part when empty channel its removed
 
 vasco:
 - CTRL D
-- kick doesnt kick admins
-- part needs to remove admin
 
 marcela:
-- mode/kick messages/ message codes 
-- privmsg : and others that contains it
-- join com pass
-- limit user count on join 
 
 bruno:
 - nick change within channel and then part 
@@ -21,3 +14,12 @@ bruno:
 - case sensitive -> user?
 - change nick
 - mode is not removing the operator
+
+TO TEST BEFORE EVAL:
+- kick doesnt kick admins
+- part needs to remove admin
+- privmsg :
+- mode/kick messages/ message codes 
+- join com pass
+- limit user count on join 
+--> part/kick when empty channel its removed

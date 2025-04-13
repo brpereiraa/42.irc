@@ -23,45 +23,42 @@ void Topic::execute(int fd, const std::string &line)
     }
 
     std::string channelName = tokens[1];
-
-    // Find the channel
-    Channel *channel = this->server.GetChannel(channelName);
     Client *client = this->server.GetClient(fd);
+    Channel *channel = this->server.GetChannelByName(channelName);
+
     if (!channel) {
-        this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channel->GetName()), fd);
+        this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);
         return;
     }
 
-    // Check if topic is restricted and user is an operator
-     if (channel->GetTopicRestricted() && !channel->IsAdmin(client->GetFd())) {
+    // Check topic restriction
+    if (channel->GetTopicRestricted() && !channel->IsAdmin(client->GetFd())) {
         this->server.sendResponse(ERR_CHANOPRIVSNEEDED(client->GetNickname(), channelName), fd);
         return;
-    } 
+    }
 
-    // If user is setting a new topic
+    // If user is setting a topic
     if (tokens.size() > 2) {
-        size_t pos = line.find(":");
-        if (pos == std::string::npos) {
-            this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
-            return;
+        std::string newTopic;
+        size_t colonPos = line.find(':');
+
+        if (colonPos != std::string::npos) {
+            newTopic = line.substr(colonPos + 1);
+        } else {
+            newTopic = tokens[2]; // Just the word after the channel
         }
 
-        std::string newTopic = line.substr(pos + 1); // Extract everything after ':'
-        
         channel->SetTopic(newTopic);
-
-        // Broadcast to all users in the channel
         std::string response = RPL_TOPICMSG(client->GetNickname(), channelName, newTopic);
         channel->SendToAll(response, fd, this->server);
         this->server.sendResponse(response, fd);
-    } 
+    }
     else {
-        // If no topic is provided, return the current topic
+        // Return current topic
         if (channel->GetTopic().empty()) {
-            this->server.sendResponse(RPL_NOTOPIC(client->GetNickname(), channel->GetName()), fd);
+            this->server.sendResponse(RPL_NOTOPIC(client->GetNickname(), channelName), fd);
         } else {
-            this->server.sendResponse(RPL_TOPICIS(client->GetNickname(), channel->GetName(), channel->GetTopic()), fd);
+            this->server.sendResponse(RPL_TOPICIS(client->GetNickname(), channelName, channel->GetTopic()), fd);
         }
     }
 }
-

@@ -3,6 +3,7 @@
 Channel::Channel() {}
 Channel::Channel(const std::string name){ 
     this->name = name; 
+    this->usr_limit = 20;
     this->inv_only = false;
     this->topic_restricted = false;
 }

@@ -13,6 +13,8 @@ void Mode::execute(int fd, const std::string &line)
     std::string target, modes;
     std::vector<std::string> args;
     Channel *channel;
+    Client *client;
+    std::string cmd = "MODE";
     int i;
 
     i = 0;
@@ -26,14 +28,8 @@ void Mode::execute(int fd, const std::string &line)
             args.push_back(word);
     };
 
-    if (target.empty()){
-        //this->server.sendResponse( ,fd);
-        std::cout << "Missing target" << std::endl;
-        return ;
-    }
-
-    if (modes.empty()){
-        std::cout << "Missing modes" << std::endl;
+    if (target.empty() || modes.empty()) {
+        this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return ;
     }
     
@@ -43,11 +39,17 @@ void Mode::execute(int fd, const std::string &line)
     }
 
     channel = this->server.GetChannelByName(target);
-    if (!channel->IsAdmin(fd)){
-        std::cout << "User isn't admin in channel" << std::endl;
+    client = this->server.GetClient(fd);
+
+    if (!channel) {
+        this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), target), fd);
         return ;
     }
 
+    if (!channel->IsAdmin(fd)){
+        this->server.sendResponse(ERR_CHANOPRIVSNEEDED(client->GetNickname(), channel->GetName()), fd);
+        return ;
+    }
 
     this->channel(fd, target, modes, args);
     
@@ -60,6 +62,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
     std::string::iterator str_it = modes.begin();
     std::vector<std::string>::iterator arg_it = args.begin();
     Channel *channel;
+    std::string cmd = "MODE";
 
     Client *client = this->server.GetClient(fd);
     Client *tmp;
@@ -111,7 +114,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             else {
                 //Check if there is argument for password
                 if (arg_it == args.end()){
-                    this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                    this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
                     str_it++;
                     continue ;
                 }
@@ -124,24 +127,22 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
         }
 
-
         //Handle moderation
         else if (*str_it == 'o') {
             channel = this->server.GetChannel(target);
 
             if (arg_it == args.end()){
-                this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
                 str_it++;
                 continue ;
             }
-
 
             //Add client to admin first. Remove from client later
             if (!value) {
                 
                 tmp = channel->GetAdminByNick(*arg_it);
                 if (!tmp){
-                    std::cout << "User not in channel" << std::endl;
+                    this->server.sendResponse(ERR_USERNOTINCHANNEL(client->GetNickname(), *arg_it, channel->GetName()), fd);
                     return ;
                 }
 
@@ -156,7 +157,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
                 tmp = channel->GetClientByNick(*arg_it);
                 if (!tmp){
-                    std::cout << "User not in channel" << std::endl;
+                    this->server.sendResponse(ERR_USERNOTINCHANNEL(client->GetNickname(), *arg_it, channel->GetName()), fd);
                     return ;
                 }
 
@@ -185,7 +186,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             else {
                 //Check if there is argument for password
                 if (arg_it == args.end()){
-                    this->server.sendResponse(":myserver 461 " + client->GetNickname() + " MODE :Not enough parameters\r\n", fd);
+                    this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
                     str_it++;
                     continue ;
                 }
@@ -206,7 +207,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
 
         //Check if it's invalid characters/mode
         else
-            this->server.sendResponse(":myserver 501 " + client->GetNickname() + " :Unknown MODE flag\r\n", fd); 
+            this->server.sendResponse(ERR_UMODEUNKNOWNFLAG(client->GetNickname()), fd); 
         
 
         str_it++;
