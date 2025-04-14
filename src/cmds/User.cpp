@@ -35,6 +35,24 @@ void User::execute(int fd, const std::string &line){
 
 		++i;
 		if (i == 4) break;
+		if (i == 2) {
+			if (word != "0") {
+				this->server.sendResponse(":myserver 464 " 
+					+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+					+ " :Erroneous username\r\n", fd);
+				return ;
+			}
+		}
+
+		if (i == 3) {
+			if (word != "*") {
+				this->server.sendResponse(":myserver 464 " 
+					+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+					+ " :Erroneous username\r\n", fd);
+				return ;
+			}
+		}
+
 		if (i == 1) {
 			it = server.getClients().find(fd);
 			if (it == server.getClients().end())
@@ -45,6 +63,6 @@ void User::execute(int fd, const std::string &line){
 	}
 
 	//Missing argument
-	if (i == 0)
-		server.sendResponse(":myserver 431 " +  client.GetNickname() + " :No user has been provided.\r\n", fd);
+	if (i < 4)
+		server.sendResponse(":myserver 461 " + client.GetNickname() + " :Not enough parameters\r\n", fd);
 }

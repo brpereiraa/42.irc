@@ -41,7 +41,7 @@ void Nick::execute(int fd, const std::string &line){
 
 			//Nickname in use
 			while (it != server.getClients().end()) {
-				if (it->second.GetNickname() == word && fd != it->second.GetFd()) {
+				if (toLowerString(it->second.GetNickname()) == toLowerString(word) && fd != it->second.GetFd()) {
 					server.sendResponse(":myserver 433 " 
 						+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 						+ " :Nickname given is already in use.\r\n", fd);

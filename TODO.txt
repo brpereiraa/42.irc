@@ -8,7 +8,6 @@ vasco:
 marcela:
 
 bruno:
-- case sensitive -> user?
 - change nick
 - mode is not removing the operator
 
