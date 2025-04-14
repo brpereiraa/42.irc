@@ -25,12 +25,12 @@ bool Join::initialChecksJoin(int fd, Client* client, Channel* channel, const std
         return true;
     }
 
-    cout << "channel limit: " << channel->GetLimit() << endl;
-    cout << "clients number: " << channel->GetClients().size() << endl;
-    cout << "admins number: " << channel->GetAdmins().size() << endl;
+    // cout << "channel limit: " << channel->GetLimit() << endl;
+    // cout << "clients number: " << channel->GetClients().size() << endl;
+    // cout << "admins number: " << channel->GetAdmins().size() << endl;
     
     size_t totalUsers = channel->GetClients().size() + channel->GetAdmins().size();
-    cout << "total users: " << totalUsers << endl;
+    //cout << "total users: " << totalUsers << endl;
     if (channel->GetLimit() > 0 && totalUsers >= static_cast<size_t>(channel->GetLimit())) {
         this->server.sendResponse(ERR_CHANNELISFULL(client->GetNickname(), channel->GetName()), fd);
         return true;

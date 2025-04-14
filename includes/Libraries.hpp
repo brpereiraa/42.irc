@@ -135,6 +135,15 @@
 #define ERR_USERSDONTMATCH(nickname) \
     (":myserver 502 " + nickname + " :Can't change mode for other users" + CRLF)
 
+#define CLIENT_NOTOPERATOR(nickname) \
+    (nickname + " :Client is not an operator" + CRLF)
+
+#define ALREADY_OPERATOR(nickname) \
+    (nickname + " :Already a channel operator" + CRLF)
+
+#define CLIENT_NOTFOUND(nickname) \
+    (nickname + " :Client not found in channel" + CRLF)
+
 
 #define RED "\033[0;31m"
 #define RESET "\033[0m"

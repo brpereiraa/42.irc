@@ -57,7 +57,7 @@ Client *Channel::GetAdminByNick(std::string nickname) {
     while (it != this->admins.end()){
         if (it->second->GetNickname() == nickname)
             return (it->second);
-        it++;
+        ++it;
     }
     
     return (NULL);

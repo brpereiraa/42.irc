@@ -29,7 +29,7 @@ void Mode::execute(int fd, const std::string &line)
     };
 
     if (target.empty() || modes.empty()) {
-        this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
+        //this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return ;
     }
     
@@ -140,10 +140,18 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             //Add client to admin first. Remove from client later
             if (!value) {
                 
-                tmp = channel->GetAdminByNick(*arg_it);
-                if (!tmp){
-                    this->server.sendResponse(ERR_USERNOTINCHANNEL(client->GetNickname(), *arg_it, channel->GetName()), fd);
+                if (!channel->GetAdminByNick(*arg_it) && !channel->GetClientByNick(*arg_it)) {
+                    this->server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), *arg_it), fd);
                     return ;
+                }
+
+                // Get the client and check if they are already an admin (operator)
+                tmp = channel->GetAdminByNick(*arg_it);
+                if (!tmp) {
+                    // If the client isn't an operator, respond with a message
+                    this->server.sendResponse(CLIENT_NOTOPERATOR(*arg_it), fd);
+                    cout << "Client is not an operator." << endl;
+                    return;
                 }
 
                 channel->AddClient(channel->GetAdminByNick(*arg_it));
@@ -155,10 +163,27 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
             //Add client to admin first. Remove from admin later
             else {
 
-                tmp = channel->GetClientByNick(*arg_it);
-                if (!tmp){
-                    this->server.sendResponse(ERR_USERNOTINCHANNEL(client->GetNickname(), *arg_it, channel->GetName()), fd);
+                if (!channel->GetAdminByNick(*arg_it) && !channel->GetClientByNick(*arg_it)) {
+                    this->server.sendResponse(ERR_NOSUCHNICK(client->GetNickname(), *arg_it), fd);
                     return ;
+                }
+
+                // Get the client and check if they are already an admin (operator)
+                tmp = channel->GetAdminByNick(*arg_it);
+                if (tmp) {
+                    // If the client is already an operator, respond with a message
+                    this->server.sendResponse(ALREADY_OPERATOR(*arg_it), fd);
+                    cout << "Already a channel operator" << endl;
+                    return;
+                }
+
+                // Get the client by nickname
+                tmp = channel->GetClientByNick(*arg_it);
+                if (!tmp) {
+                    // If the client doesn't exist in the channel, respond with an error message
+                    this->server.sendResponse(CLIENT_NOTFOUND(*arg_it), fd);
+                    cout << "Client not found in channel" << endl;
+                    return;
                 }
 
                 channel->AddAdmin(channel->GetClientByNick(*arg_it));
