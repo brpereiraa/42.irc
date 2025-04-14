@@ -146,7 +146,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                     return ;
                 }
 
-                channel->AddClient(*channel->GetAdminByNick(*arg_it));
+                channel->AddClient(channel->GetAdminByNick(*arg_it));
                 channel->RemoveAdmin(*arg_it);
                 channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "-o", *arg_it), fd, this->server);
                 this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "-o", *arg_it), fd);
@@ -161,7 +161,7 @@ void Mode::channel(int fd, const std::string &target, std::string &modes, std::v
                     return ;
                 }
 
-                channel->AddAdmin(*channel->GetClientByNick(*arg_it));
+                channel->AddAdmin(channel->GetClientByNick(*arg_it));
                 channel->RemoveClientNick(*arg_it);
                 channel->SendToAll(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd, this->server);
                 this->server.sendResponse(RPL_MODEMSG(client->GetNickname(), client->GetUsername(), channel->GetName(), "+o", *arg_it), fd);

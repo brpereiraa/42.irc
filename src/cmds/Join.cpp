@@ -103,7 +103,7 @@ void Join::joinChannel(int fd, const std::string& channelName, const std::string
     if (initialChecksJoin(fd, client, channel, key))
         return;
 
-    channel->AddClient(*client);
+    channel->AddClient(client);
 
     std::string joinMsg = RPL_JOINMSG(client->GetNickname(), client->GetUsername(), channelName);
     std::string nameReply = RPL_NAMREPLY(client->GetNickname(), channelName, channel->ClientChannelList());
@@ -128,7 +128,7 @@ void Join::createAndJoinChannel(int fd, const std::string& channelName, const st
     if (!key.empty())
         newChannel.SetPassword(key);
 
-    newChannel.AddAdmin(*client);
+    newChannel.AddAdmin(client);
     this->server.addChannel(newChannel);
 
     Channel* createdChannel = this->server.GetChannel(channelName);

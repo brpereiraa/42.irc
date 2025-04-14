@@ -67,6 +67,7 @@ class Nick : public ACommands {
     public:
         Nick(Server &server);
         void execute (int fd, const std::string &line);
+        void SendSharedChannels(Client *client, std::string nickname, int fd);
 
 };
 

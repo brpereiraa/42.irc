@@ -10,19 +10,19 @@ Nick::Nick(Server &server): ACommands(server){
 void Nick::execute(int fd, const std::string &line){
 	std::istringstream stream(line);
 	std::string word;
-	Client client;
+	Client *client;
 	std::map<int, Client>::iterator it;
 	int i;
 	
 	it = server.getClients().find(fd);
-	client = it->second;
+	client = &it->second;
 	it = server.getClients().begin();
 	i = -1;
 
 	//Check auth handling
-	if (server.getPassword() != "" && client.GetPassword() != server.getPassword()) {
+	if (server.getPassword() != "" && client->GetPassword() != server.getPassword()) {
 		server.sendResponse(":myserver 464 " 
-			+ (!client.GetNickname().empty() ? client.GetNickname() : "*")  
+			+ (!client->GetNickname().empty() ? client->GetNickname() : "*")  
 			+ " :Password incorrect\r\n", fd);
 		return ;
 	}
@@ -34,7 +34,7 @@ void Nick::execute(int fd, const std::string &line){
 			//Invalid Nickname
 			if(word[0] == ':'){
 				server.sendResponse(":myserver 432 " 
-					+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+					+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 					+ " :Erroneous nickname\r\n", fd);
 				return ;
 			}
@@ -43,7 +43,7 @@ void Nick::execute(int fd, const std::string &line){
 			while (it != server.getClients().end()) {
 				if (it->second.GetNickname() == word && fd != it->second.GetFd()) {
 					server.sendResponse(":myserver 433 " 
-						+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+						+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 						+ " :Nickname given is already in use.\r\n", fd);
 					return ;
 				}
@@ -53,12 +53,28 @@ void Nick::execute(int fd, const std::string &line){
 			it = server.getClients().find(fd);
 			if (it == server.getClients().end())
 				return ;
+			server.sendResponse(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + word + "\r\n", fd);
+			this->SendSharedChannels(client, word, fd);
 			it->second.SetNickname(word);
-			server.sendResponse(":" + client.GetNickname() + "!" + client.GetUsername() + "@localhost NICK " + word + "\r\n", fd);
 		}
 	}
 
 	//Missing argument
 	if (i == 0)
-		server.sendResponse(":myserver 431 " +  client.GetNickname() + " : No nickname has been provided.\r\n", fd);
+		server.sendResponse(":myserver 431 " +  client->GetNickname() + " : No nickname has been provided.\r\n", fd);
 }
+
+void Nick::SendSharedChannels(Client *client, std::string nickname, int fd) {
+    if (this->server.getChannels()->empty() || !client || nickname.empty()) {
+        return;
+    }
+	
+    std::map<std::string, Channel>::iterator it = this->server.getChannels()->begin();
+    while (it != this->server.getChannels()->end()) {
+        std::cout << "Checking channel: " << it->first << std::endl;
+        if (it->second.GetClientInChannel(client->GetNickname())) {
+            it->second.SendToAll(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + nickname + "\r\n", fd, this->server);
+        }
+        it++;
+    }
+}	

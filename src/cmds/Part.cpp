@@ -45,7 +45,7 @@ void Part::execute(int fd, const std::string &line) {
             continue;
         }
 
-        if (!channel->GetClientByNick(client->GetNickname()) && !channel->GetAdminByNick(client->GetNickname())) {
+        if (!channel->GetClientInChannel(this->server.GetClient(fd)->GetNickname())) {
             this->server.sendResponse(ERR_INVITERINCHANNEL(client->GetNickname(), channelName), fd);
             continue;
         }

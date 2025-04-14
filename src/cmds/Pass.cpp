@@ -14,12 +14,18 @@ void Pass::execute(int fd, const std::string &line){
 		++i;
 		if (i == 2) break;
 		if (i == 1) {
-			if (it->second.GetPassword() == server.getPassword())
+			if (it->second.GetPassword() == server.getPassword()){
+				server.sendResponse(":myserver 462 " +  
+					(it->second.GetNickname().empty() ? "*" : it->second.GetNickname()) + 
+					" :You may not reregister\r\n", fd);
 				return ;
+			}
 			else if (word == server.getPassword())
 				it->second.SetPassword(word);
 			else
-				server.sendResponse(":myserver 464 " +  it->second.GetNickname() + " :Password mismatch. Please provide the correct password\r\n", fd);
+				server.sendResponse(":myserver 464 " +  
+					(it->second.GetNickname().empty() ? "*" : it->second.GetNickname()) + 
+					" :Password mismatch. Please provide the correct password\r\n", fd);
 		}
 	}
 	if (i == 0)

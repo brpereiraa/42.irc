@@ -55,7 +55,7 @@ bool Server::removeClient(int fd) {
 std::map<int, Client>   &Server::getClients() { return this->clients; }
 Client                  *Server::GetClient(int fd) {return (&this->clients[fd]); }
 
-std::map<std::string, Channel>  Server::getChannels() const { return this->channels; }
+std::map<std::string, Channel>  *Server::getChannels() { return (&this->channels); }
 Channel                         *Server::GetChannel(std::string name) { return (&this->channels[name]); }
 
 Channel *Server::GetChannelByName(std::string name) {

@@ -13,9 +13,9 @@ class Channel {
 		std::string name;
 		std::string topic;
 		std::string password;
-		std::map<int, Client> admins;
-		std::map<int, Client> clients;
-		std::map<int, Client> invited;
+		std::map<int, Client *> admins;
+		std::map<int, Client *> clients;
+		std::map<int, Client *> invited;
 
 	public:
 		Channel();
@@ -25,9 +25,9 @@ class Channel {
 		const std::string GetTopic() const;
 		const std::string GetName() const;
 		const std::string GetPassword() const;
-		const std::map<int, Client> GetClients() const;
-		const std::map<int, Client> GetAdmins() const;
-		const std::map<int, Client> GetInvited() const;
+		const std::map<int, Client *> GetClients();
+		const std::map<int, Client *> GetAdmins();
+		const std::map<int, Client *> GetInvited();
 		bool GetInvite() const;
 		bool GetTopicRestricted() const;
 		int GetLimit() const;
@@ -42,9 +42,9 @@ class Channel {
 		void SetTopicRestricted(const bool value);
 		void SetLimit(const int limit );
 
-		void AddClient(Client &client);
-		void AddAdmin(Client &client);
-		void AddInvited(Client &client);
+		void AddClient(Client *client);
+		void AddAdmin(Client *client);
+		void AddInvited(Client *client);
 
 		void RemoveClient(int fd);
 		void RemoveClientNick(std::string nick);
@@ -56,6 +56,7 @@ class Channel {
 		void SendToAll(const std::string &reply, int fd, Server &server);
 		void ClearClients();
 		bool GetClientInChannel(const std::string &nickname);
+		bool GetClientInChannelFD(const int fd);
 		bool IsAdmin(int fd);
 		std::string ClientChannelList();
 

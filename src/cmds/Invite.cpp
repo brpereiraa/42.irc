@@ -83,5 +83,5 @@ void Invite::execute(int fd, const std::string &line)
     server.sendResponse((":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost INVITE " + i_client->GetNickname() + " :" + channel->GetName() + "\r\n"), fd);
     server.sendResponse(":" + client->GetNickname() + " INVITE " +  i_client->GetNickname() + " :" + channel->GetName() + "\r\n",  i_client->GetFd());
 
-    channel->AddInvited(*i_client);
+    channel->AddInvited(i_client);
 }

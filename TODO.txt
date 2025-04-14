@@ -8,9 +8,6 @@ vasco:
 marcela:
 
 bruno:
-- nick change within channel and then part 
-- nick send to all users
-- pass with *
 - case sensitive -> user?
 - change nick
 - mode is not removing the operator
