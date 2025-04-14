@@ -14,6 +14,7 @@ class Client {
     std::string nickname;
     std::string username;
     std::string password;
+    std::string temp;
     //bool isOperator;
 
     public:
@@ -24,6 +25,7 @@ class Client {
         const std::string GetNickname() const;
         const std::string GetUsername() const;
         const std::string GetBuffer() const;
+        const std::string GetTemp() const;
         const std::string GetPassword() const;
         bool GetLoggedIn () const;
 
@@ -31,7 +33,8 @@ class Client {
         void SetNickname(std::string nick);
         void SetUsername(std::string user);
         void SetPassword(std::string pass);
-        void SetBuffer(char *buff);
+        void SetBuffer(std::string buff);
+        void SetTemp(std::string temp);
         void SetIpAdd(std::string ip_add);
         void SetLogged(bool log);
 

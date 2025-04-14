@@ -147,5 +147,6 @@ inline void ThrowException(std::string msg)
 }
 
 std::string toLowerString(const std::string& str);
+bool ends_with(const std::string& str, const std::string& suffix);
 
 #endif // !LIBRARIES_HPP
