@@ -62,6 +62,12 @@ void Kick::execute(int fd, const std::string& line)
             return ;
         }
 
+        // If the kicker is not an admin of the channel, send ERR_USERCANINVITE
+        if (!channel->GetAdminByNick(client_kicker->GetNickname())) {
+            this->server.sendResponse(ERR_USERCANINVITE(client_kicker->GetNickname(), client_kicker->GetNickname()), fd);
+            return ;
+        }
+        
         // Check if the user is in the channel
         if (!channel->GetClientByNick(*it) && !channel->GetAdminByNick(*it)) {
             // If the user is neither a client nor an admin of the channel, send ERR_USERNOTINCHANNEL
@@ -80,11 +86,6 @@ void Kick::execute(int fd, const std::string& line)
             return ;
         }
 
-        // If the kicker is not an admin of the channel, send ERR_USERCANINVITE
-        if (!channel->GetAdminByNick(client_kicker->GetNickname())) {
-            this->server.sendResponse(ERR_USERCANINVITE(client_kicker->GetNickname(), client_kicker->GetNickname()), fd);
-            return ;
-        }
 
         this->server.sendResponse(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], *it), fd);
         channel->SendToAll(RPL_KICKMSG(client_kicker->GetNickname(), tokens[1], *it), fd, this->server);

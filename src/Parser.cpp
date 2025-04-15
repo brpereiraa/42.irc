@@ -43,6 +43,8 @@ void Handler(int fd, std::string line, Server &server)
         command = new Privmsg(server);
     else if (cmds == "PART")
         command = new Part(server);
+    else if (cmds == "QUIT")
+        command = new Part(server);
         
     if (command) { 
         command->execute(fd, line);

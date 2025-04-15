@@ -290,13 +290,15 @@ void Server::closeClientConnections()
         
         // Close the client socket
         close(it->second->GetFd());
+        delete(it->second);
     }
 }
 
 void Server::cleanupChannels() 
 {
     for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        it->second->ClearClients();
+        //it->second->ClearClients();
+        delete(it->second);
     }
     channels.clear();
 }

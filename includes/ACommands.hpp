@@ -92,4 +92,11 @@ class Part : public ACommands {
         
 };
 
+class Quit : public ACommands {
+    public:
+        Quit(Server &server);
+        void execute (int fd, const std::string &line);
+        
+};
+
 #endif // !ACOMMANDS_HPP

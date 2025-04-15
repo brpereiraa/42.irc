@@ -45,7 +45,7 @@ bool Server::removeClient(int fd) {
         this->clients.erase(fd);
         return (true);
     }
-    std::cout << "Channel with name " << fd << " doesn't exist" << std::endl;
+    std::cout << "Client with name " << fd << " doesn't exist" << std::endl;
     return (false);
 }
 
@@ -53,7 +53,7 @@ bool Server::removeClient(int fd) {
 //-----------Setters/Getters----------------
 
 std::map<int, Client *>   *Server::getClients() { return &this->clients; }
-Client                  *Server::GetClient(int fd) {return (this->clients[fd]); }
+Client                  *Server::GetClient(int fd) {return (this->clients.at(fd)); }
 
 std::map<std::string, Channel *>  *Server::getChannels() { return (&this->channels); }
 Channel                         *Server::GetChannel(std::string name) { return (this->channels.at(name)); }
