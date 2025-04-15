@@ -17,11 +17,11 @@ void Server::SignalHandler(int signum)
     cout << endl << "Signal received!" << endl;
     // Server::signal = true;
     if (signum == SIGPIPE) {
-            std::cout << "SIGPIPE received: ignoring..." << std::endl;
-        } else {
-            std::cout << std::endl << "Signal received!" << std::endl;
-            Server::signal = true;
-        }
+        std::cout << "SIGPIPE received: ignoring..." << std::endl;
+    } else {
+        std::cout << std::endl << "Signal received!" << std::endl;
+        Server::signal = true;
+    }
 }
 
 void Server::ClearClients(int fd)
@@ -64,27 +64,34 @@ void Server::CloseFds()
 
 void Server::AcceptNewClient()
 {
-    Client *cli = new Client();
+    Client *cli = new Client();  // Aloca um novo cliente
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
 
-    int incofd = accept(server_socket, (sockaddr *)&(cli_add), &len); //aceitar o novo cliente
-    if (incofd == -1)
-    {cout << "accept() failed" << endl;return;}
-    
-    if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) //non blocking 
-    {cout << "fcntl() failed" << endl; return;}
+    int incofd = accept(server_socket, (sockaddr *)&(cli_add), &len); // Aceitar o novo cliente
+    if (incofd == -1) {
+        std::cout << "accept() failed" << std::endl;
+        delete cli;  // Deleta o cliente em caso de falha no accept
+        return;
+    }
 
-    new_poll.fd = incofd; //adicionar o socket do client ao pollfd
+    if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) { // Configura para modo non-blocking
+        std::cout << "fcntl() failed" << std::endl;
+        delete cli;  // Deleta o cliente em caso de falha ao configurar o socket
+        return;
+    }
+
+    new_poll.fd = incofd;  // Adicionar o socket do cliente ao pollfd
     new_poll.events = POLLIN;
     new_poll.revents = 0;
 
-    cli->SetFd(incofd); //settar o fd do cliente
-    cli->SetIpAdd(inet_ntoa((cli_add.sin_addr))); //converte o endereco de ip para string e setta
-    this->addClient(cli);
-    fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
+    cli->SetFd(incofd); // Setar o fd do cliente
+    cli->SetIpAdd(inet_ntoa((cli_add.sin_addr))); // Configura o IP do cliente
+    this->addClient(cli);  // Adiciona o cliente ao servidor
+    fds.push_back(new_poll);  // Adiciona o socket ao pollfd
 
+    std::cout << "Novo cliente conectado: " << cli->GetIpAdd() << " com o fd " << incofd << std::endl;
 }
 
 void Server::ReceiveNewData(int fd)
@@ -96,33 +103,35 @@ void Server::ReceiveNewData(int fd)
 
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
 
-    if (bytes <= 0) //cliente desconectou
+    if (bytes <= 0) // cliente desconectou ou erro
     {
-        cout << "Client <" << fd << "> disconnected" << endl;
-        ClearClients(fd);
-        close(fd);
-    }
-    else //imprime os dados recebidos
-    {
-        //associar o buffer ao cliente aqui
-        buff[bytes] = '\0';
-        //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
-        //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
-        cmd = SplitBuffer(buff);
-
-        for (size_t i = 0; i < cmd.size(); i++) {
-            cli->SetBuffer("");
-            if (!ends_with(cmd[i], "\n")) {
-                cli->SetTemp(cmd[i]);
-                continue;
-            } 
-            
-            else {
-                cli->VectAdd(cli->GetTemp() + cmd[i]);
-                cli->SetTemp("");
-            }
+        if (bytes == 0){
+            std::cout << "Client <" << fd << "> disconnected" << std::endl;
+            delete(cli);
+            close(fd);
         }
+        ClearClients(fd); // certifique-se de que isso deleta o Client*
+        close(fd); // fecha o socket
+        return;
+    }
 
+    //associar o buffer ao cliente aqui
+    buff[bytes] = '\0';
+    //fazer parse/split do buffer, e para cada posicao do vetor retornado fazer parse do cmd
+    //here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+    cmd = SplitBuffer(buff);
+
+    for (size_t i = 0; i < cmd.size(); i++) {
+        cli->SetBuffer("");
+        if (!ends_with(cmd[i], "\n")) {
+            cli->SetTemp(cli->GetTemp() + cmd[i]);
+            continue;
+        } 
+        
+        else {
+            cli->VectAdd(cli->GetTemp() + cmd[i]);
+            cli->SetTemp("");
+        }
     }
 }
 

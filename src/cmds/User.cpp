@@ -7,6 +7,7 @@ User::User(Server &server): ACommands(server){
 void User::execute(int fd, const std::string &line){
 	std::istringstream stream(line);
 	std::string word;
+	std::string user;
 	Client *client;
 	std::map<int, Client *>::iterator it;
 	int i;
@@ -34,7 +35,13 @@ void User::execute(int fd, const std::string &line){
 	while (stream >> word) {
 
 		++i;
-		if (i == 4) break;
+		if (i == 1) {
+			it = server.getClients()->find(fd);
+			if (it == server.getClients()->end())
+				return ;
+			user = word;
+		}
+		
 		if (i == 2) {
 			if (word != "0") {
 				this->server.sendResponse(":myserver 464 " 
@@ -53,13 +60,11 @@ void User::execute(int fd, const std::string &line){
 			}
 		}
 
-		if (i == 1) {
-			it = server.getClients()->find(fd);
-			if (it == server.getClients()->end())
-				return ;
-			it->second->SetUsername(word);
-		}
 
+		if (i == 4) {
+			it->second->SetUsername(user);
+			break;
+		} 
 	}
 
 	//Missing argument
