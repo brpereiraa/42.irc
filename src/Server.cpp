@@ -22,7 +22,6 @@ void Server::SignalHandler(int signum)
             std::cout << std::endl << "Signal received!" << std::endl;
             Server::signal = true;
         }
-
 }
 
 void Server::ClearClients(int fd)

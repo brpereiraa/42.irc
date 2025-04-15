@@ -15,12 +15,14 @@ bool Join::initialChecksJoin(int fd, Client* client, Channel* channel, const std
         return true;
     }
 
-    if (!channel->GetPassword().empty() && channel->GetPassword() != key) {
+    bool isInvited = channel->GetInvitedByNick(client->GetNickname());
+
+    if (!isInvited && !channel->GetPassword().empty() && channel->GetPassword() != key) {
         this->server.sendResponse(ERR_BADCHANNELKEY(client->GetNickname(), channel->GetName()), fd);
         return true;
     }
 
-    if (channel->GetInvite() && !channel->GetInvitedByNick(client->GetNickname())) {
+    if (channel->GetInvite() && !isInvited) {
         this->server.sendResponse(ERR_INVITEONLYCHAN(client->GetNickname(), channel->GetName()), fd);
         return true;
     }
@@ -116,8 +118,12 @@ void Join::joinChannel(int fd, const std::string& channelName, const std::string
 void Join::createAndJoinChannel(int fd, const std::string& channelName, const std::string& key)
 {
     Client* client = this->server.GetClient(fd);
-    if (!client)
+    std::string cmd = "JOIN";
+
+    if (!client || !client->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
         return;
+    }
 
     if (channelName[0] != '#') {
         this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);

@@ -17,7 +17,7 @@ void Kick::execute(int fd, const std::string& line)
     std::string cmd = "KICK";
 
     Client *client;
-    Client *client_kicker;
+    Client *client_kicker = this->server.GetClient(fd); 
 
     while (line_stream >> temp) {
         tokens.push_back(temp);
@@ -26,6 +26,11 @@ void Kick::execute(int fd, const std::string& line)
     if (tokens.size() < 3) {
         this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return ;
+    }
+
+    if (!client_kicker || !client_kicker->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
     }
 
     std::stringstream token_stream(tokens[2]);

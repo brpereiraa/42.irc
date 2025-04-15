@@ -28,6 +28,7 @@ void Mode::execute(int fd, const std::string &line)
             args.push_back(word);
     };
 
+
     if (target.empty() || modes.empty()) {
         //this->server.sendResponse(ERR_NEEDMOREPARAMS(cmd), fd);
         return ;
@@ -40,6 +41,11 @@ void Mode::execute(int fd, const std::string &line)
 
     channel = this->server.GetChannelByName(target);
     client = this->server.GetClient(fd);
+
+    if (!client->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
+    }
 
     if (!channel) {
         this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), target), fd);

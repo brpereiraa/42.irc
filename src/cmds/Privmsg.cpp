@@ -23,6 +23,11 @@ void Privmsg::execute(int fd, const std::string &line) {
         return;
     }
 
+    if (!sender->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
+    }
+
     // Extract targets
     std::vector<std::string> targets;
     std::istringstream targetsStream(tokens[1]);

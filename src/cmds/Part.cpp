@@ -29,7 +29,10 @@ void Part::execute(int fd, const std::string &line) {
     }
 
     Client *client = this->server.GetClient(fd);
-    if (!client) return;
+    if (!client || !client->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
+    }
 
     for (size_t i = 0; i < channelTokens.size(); ++i) {
         const std::string &channelName = channelTokens[i];

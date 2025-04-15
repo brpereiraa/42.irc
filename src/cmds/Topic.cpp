@@ -26,6 +26,11 @@ void Topic::execute(int fd, const std::string &line)
     Client *client = this->server.GetClient(fd);
     Channel *channel = this->server.GetChannelByName(channelName);
 
+    if (!client || !client->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
+    }
+    
     if (!channel) {
         this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);
         return;
