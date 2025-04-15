@@ -11,12 +11,12 @@ void Nick::execute(int fd, const std::string &line){
 	std::istringstream stream(line);
 	std::string word;
 	Client *client;
-	std::map<int, Client>::iterator it;
+	std::map<int, Client *>::iterator it;
 	int i;
 	
-	it = server.getClients().find(fd);
-	client = &it->second;
-	it = server.getClients().begin();
+	it = server.getClients()->find(fd);
+	client = it->second;
+	it = server.getClients()->begin();
 	i = -1;
 
 	//Check auth handling
@@ -26,7 +26,6 @@ void Nick::execute(int fd, const std::string &line){
 			+ " :Password incorrect\r\n", fd);
 		return ;
 	}
-	
 	while (stream >> word) {
 		++i;
 		if (i == 2) break;
@@ -40,8 +39,8 @@ void Nick::execute(int fd, const std::string &line){
 			}
 
 			//Nickname in use
-			while (it != server.getClients().end()) {
-				if (toLowerString(it->second.GetNickname()) == toLowerString(word) && fd != it->second.GetFd()) {
+			while (it != server.getClients()->end()) {
+				if (toLowerString(it->second->GetNickname()) == toLowerString(word) && fd != it->second->GetFd()) {
 					server.sendResponse(":myserver 433 " 
 						+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 						+ " :Nickname given is already in use.\r\n", fd);
@@ -50,12 +49,12 @@ void Nick::execute(int fd, const std::string &line){
 				it++;
 			}
 
-			it = server.getClients().find(fd);
-			if (it == server.getClients().end())
+			it = server.getClients()->find(fd);
+			if (it == server.getClients()->end())
 				return ;
 			server.sendResponse(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + word + "\r\n", fd);
 			this->SendSharedChannels(client, word, fd);
-			it->second.SetNickname(word);
+			it->second->SetNickname(word);
 		}
 	}
 
@@ -69,11 +68,10 @@ void Nick::SendSharedChannels(Client *client, std::string nickname, int fd) {
         return;
     }
 	
-    std::map<std::string, Channel>::iterator it = this->server.getChannels()->begin();
+    std::map<std::string, Channel *>::iterator it = this->server.getChannels()->begin();
     while (it != this->server.getChannels()->end()) {
-        std::cout << "Checking channel: " << it->first << std::endl;
-        if (it->second.GetClientInChannel(client->GetNickname())) {
-            it->second.SendToAll(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + nickname + "\r\n", fd, this->server);
+        if (it->second->GetClientInChannel(client->GetNickname())) {
+            it->second->SendToAll(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + nickname + "\r\n", fd, this->server);
         }
         it++;
     }

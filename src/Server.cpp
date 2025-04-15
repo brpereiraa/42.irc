@@ -15,7 +15,7 @@ void Server::SignalHandler(int signum)
 {
     (void)signum;
     cout << endl << "Signal received!" << endl;
-    Server::signal = true;
+    // Server::signal = true;
     if (signum == SIGPIPE) {
             std::cout << "SIGPIPE received: ignoring..." << std::endl;
         } else {
@@ -27,7 +27,7 @@ void Server::SignalHandler(int signum)
 
 void Server::ClearClients(int fd)
 {
-    std::map<int, Client>::iterator it = this->clients.begin();
+    std::map<int, Client *>::iterator it = this->clients.begin();
 	
     for (size_t i = 0; i < fds.size(); i++) //remove da poll
     {
@@ -39,7 +39,7 @@ void Server::ClearClients(int fd)
     }
 
     while (it != this->clients.end()) {
-        if (it->second.GetFd() == fd){
+        if (it->second->GetFd() == fd){
             this->removeClient(it->first);
             break;
         }
@@ -50,10 +50,10 @@ void Server::ClearClients(int fd)
 //acho que isso pode ir para utils
 void Server::CloseFds()
 {
-    std::map<int, Client>::iterator it = this->clients.begin();
+    std::map<int, Client *>::iterator it = this->clients.begin();
 
     while (it != this->clients.end()){
-        close(it->second.GetFd());
+        close(it->second->GetFd());
 		it++;
 	}
     if (server_socket != -1)
@@ -65,25 +65,25 @@ void Server::CloseFds()
 
 void Server::AcceptNewClient()
 {
-    Client cli;
+    Client *cli = new Client();
     struct sockaddr_in cli_add;
     struct pollfd new_poll;
     socklen_t len = sizeof(cli_add);
 
     int incofd = accept(server_socket, (sockaddr *)&(cli_add), &len); //aceitar o novo cliente
     if (incofd == -1)
-        {cout << "accept() failed" << endl;return;}
-
+    {cout << "accept() failed" << endl;return;}
+    
     if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) //non blocking 
-        {cout << "fcntl() failed" << endl; return;}
+    {cout << "fcntl() failed" << endl; return;}
 
     new_poll.fd = incofd; //adicionar o socket do client ao pollfd
     new_poll.events = POLLIN;
     new_poll.revents = 0;
 
-    cli.SetFd(incofd); //settar o fd do cliente
-    cli.SetIpAdd(inet_ntoa((cli_add.sin_addr))); //converte o endereco de ip para string e setta
-    this->addClient(cli); //adiciona novo cliente a lista !!!
+    cli->SetFd(incofd); //settar o fd do cliente
+    cli->SetIpAdd(inet_ntoa((cli_add.sin_addr))); //converte o endereco de ip para string e setta
+    this->addClient(cli);
     fds.push_back(new_poll); //adiciona o socket do cliente ao pollfd
 
 }
@@ -92,7 +92,7 @@ void Server::ReceiveNewData(int fd)
 {
     char buff[1024]; //para os dados recebidos
     memset(buff, 0, sizeof(buff)); //limpar o buffer
-    Client *cli = &this->clients[fd];
+    Client *cli = this->clients[fd];
     std::vector<std::string> cmd;   
 
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); //recebe os dados
@@ -119,25 +119,9 @@ void Server::ReceiveNewData(int fd)
             } 
             
             else {
-                cli->SetBuffer(cli->GetTemp() + cmd[i]);
+                cli->VectAdd(cli->GetTemp() + cmd[i]);
                 cli->SetTemp("");
-                std::cout << "Whew: '" << cli->GetBuffer() << "'" << std::endl;
-                Handler(fd, cli->GetBuffer(), *this);
             }
-        }
-
-        //Check auth.
-        if ( !this->clients[fd].GetNickname().empty() && !this->clients[fd].GetUsername().empty() 
-                && !this->clients[fd].GetLoggedIn() ){
-    
-                    //Server without password
-                    if (this->getPassword().empty())
-                        this->SendMessages(fd);
-    
-                    //Server with password
-                    else if (this->clients[fd].GetPassword() == this->getPassword())
-                        this->SendMessages(fd);
-    
         }
 
     }
@@ -188,8 +172,39 @@ void Server::ServerInit()
             {
                 if (fds[i].fd == server_socket)
                     AcceptNewClient();
-                else
+                else {
                     ReceiveNewData(fds[i].fd);
+                    fds[i].events = POLLOUT;
+                }
+            }
+            
+            else if (fds[i].revents & POLLOUT) {
+                Client *client;
+                
+                client = this->GetClient(fds[i].fd);
+                if (!client)
+                    return ;
+                
+                for (size_t j = 0; j < client->GetVect().size(); j++) {
+                    Handler(fds[i].fd, client->GetVect()[j], *this);
+                }
+
+                //Check auth.
+                if ( !client->GetNickname().empty() && !client->GetUsername().empty() 
+                && !client->GetLoggedIn() ){
+
+                    //Server without password
+                    if (this->getPassword().empty())
+                        this->SendMessages(client->GetFd());
+
+                    //Server with password
+                    else if (client->GetPassword() == this->getPassword())
+                        this->SendMessages(client->GetFd());
+
+                }
+
+                client->VectReset();
+                fds[i].events = POLLIN;
             }
         }
     }
@@ -230,35 +245,34 @@ std::vector<std::string> Server::SplitBuffer(std::string str)
 
 void Server::SendMessages(int fd)
 {
-    Client &client = this->clients[fd]; // Get client reference to avoid multiple lookups
-
-    client.SetLogged(true);
+    Client *client = this->GetClient(fd); // Get client reference to avoid multiple lookups
+    client->SetLogged(true);
 
     // 001 - Welcome message
-    sendResponse(RPL_CONNECTED(client.GetNickname()), fd);
+    sendResponse(RPL_CONNECTED(client->GetNickname()), fd);
 
     // 002 - Host info
-    sendResponse(RPL_HOSTINFO(client.GetNickname()), fd);
+    sendResponse(RPL_HOSTINFO(client->GetNickname()), fd);
 
     // 003 - Server creation time
-    sendResponse(RPL_CREATIONTIME(client.GetNickname(), this->getTime()), fd);
+    sendResponse(RPL_CREATIONTIME(client->GetNickname(), this->getTime()), fd);
 
     // 004 - Server information and supported modes
-    sendResponse(RPL_SERVERINFO(client.GetNickname()), fd);
+    sendResponse(RPL_SERVERINFO(client->GetNickname()), fd);
 
     // 005 - Supported server features (including CHANLIMIT)
-    sendResponse(RPL_ISUPPORT(client.GetNickname()), fd);
+    sendResponse(RPL_ISUPPORT(client->GetNickname()), fd);
 
     // 375 - Start of MOTD
-    sendResponse(RPL_MOTDSTART(client.GetNickname()), fd);
+    sendResponse(RPL_MOTDSTART(client->GetNickname()), fd);
 
     // 372 - MOTD lines
-    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Welcome to our IRC server!"), fd);
-    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Please be respectful and follow the rules."), fd);
-    sendResponse(RPL_MOTDLINES(client.GetNickname(), "Have fun chatting!"), fd);
+    sendResponse(RPL_MOTDLINES(client->GetNickname(), "Welcome to our IRC server!"), fd);
+    sendResponse(RPL_MOTDLINES(client->GetNickname(), "Please be respectful and follow the rules."), fd);
+    sendResponse(RPL_MOTDLINES(client->GetNickname(), "Have fun chatting!"), fd);
 
     // 376 - End of MOTD
-    sendResponse(RPL_MOTDEND(client.GetNickname()), fd);
+    sendResponse(RPL_MOTDEND(client->GetNickname()), fd);
 }
 
 bool Server::registered(int fd) 
@@ -270,20 +284,20 @@ bool Server::registered(int fd)
 
 void Server::closeClientConnections() 
 {
-    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+    for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it) {
         // Send final shutdown message
         std::string message = "Server is shutting down, goodbye!";
-        send(it->second.GetFd(), message.c_str(), message.size(), 0);
+        send(it->second->GetFd(), message.c_str(), message.size(), 0);
         
         // Close the client socket
-        close(it->second.GetFd());
+        close(it->second->GetFd());
     }
 }
 
 void Server::cleanupChannels() 
 {
-    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        it->second.ClearClients();
+    for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        it->second->ClearClients();
     }
     channels.clear();
 }

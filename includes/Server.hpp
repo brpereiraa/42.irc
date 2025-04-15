@@ -15,9 +15,9 @@ class Server {
     int server_socket;
     static bool signal;
     std::string password;
-    std::map<int, Client> clients;
+    std::map<int, Client *> clients;
     std::vector<struct pollfd> fds;
-    std::map<std::string, Channel> channels;
+    std::map<std::string, Channel *> channels;
 
     public:
         Server();
@@ -35,17 +35,17 @@ class Server {
         Channel *GetChannel(std::string topic);
         std::vector<std::string> SplitBuffer(std::string str);
 
-        std::map<int, Client> &getClients();
-        std::map<std::string, Channel> *getChannels();
+        std::map<int, Client *> *getClients();
+        std::map<std::string, Channel *> *getChannels();
         Channel *GetChannelByName(std::string name);
         std::string getTime() const;
         std::string getPassword() const;
 
         void setTime();
 
-        bool addClient(Client &client);
+        bool addClient(Client *client);
         bool existsChannel(std::string name) const;
-        bool addChannel(Channel &channel);
+        bool addChannel(Channel *channel);
         bool removeClient(int fd);
         bool removeChannel(std::string name);
         bool registered(int fd);

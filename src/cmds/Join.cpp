@@ -124,11 +124,11 @@ void Join::createAndJoinChannel(int fd, const std::string& channelName, const st
         return;
     }
 
-    Channel newChannel(channelName);
+    Channel *newChannel = new Channel(channelName);
     if (!key.empty())
-        newChannel.SetPassword(key);
+        newChannel->SetPassword(key);
 
-    newChannel.AddAdmin(client);
+    newChannel->AddAdmin(client);
     this->server.addChannel(newChannel);
 
     Channel* createdChannel = this->server.GetChannel(channelName);

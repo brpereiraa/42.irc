@@ -13,21 +13,21 @@ Server::Server(int port, std::string password)
 
 //-----------Map_Handler-------------------
 
-bool Server::addChannel(Channel &channel) {
-	if (this->channels.count(channel.GetName())) {
-		std::cout << "Channel with topic  " << channel.GetName() << " already exists" << std::endl;
+bool Server::addChannel(Channel *channel) {
+	if (this->channels.count(channel->GetName())) {
+		std::cout << "Channel with topic  " << channel->GetName() << " already exists" << std::endl;
         return (false);
     }
-	this->channels[channel.GetName()] = channel;
+	this->channels[channel->GetName()] = channel;
     return (true);
 }
 
-bool Server::addClient(Client &client) {
-	if (this->clients.count(client.GetFd())) {
-		std::cout << "Client with topic  " << client.GetFd() << " already exists" << std::endl;
+bool Server::addClient(Client *client) {
+	if (this->clients.count(client->GetFd())) {
+		std::cout << "Client with name  " << client->GetFd() << " already exists" << std::endl;
         return (false);
     }
-	this->clients[client.GetFd()] = client;
+	this->clients[client->GetFd()] = client;
     return (true);
 }
 
@@ -52,18 +52,18 @@ bool Server::removeClient(int fd) {
 
 //-----------Setters/Getters----------------
 
-std::map<int, Client>   &Server::getClients() { return this->clients; }
-Client                  *Server::GetClient(int fd) {return (&this->clients[fd]); }
+std::map<int, Client *>   *Server::getClients() { return &this->clients; }
+Client                  *Server::GetClient(int fd) {return (this->clients[fd]); }
 
-std::map<std::string, Channel>  *Server::getChannels() { return (&this->channels); }
-Channel                         *Server::GetChannel(std::string name) { return (&this->channels[name]); }
+std::map<std::string, Channel *>  *Server::getChannels() { return (&this->channels); }
+Channel                         *Server::GetChannel(std::string name) { return (this->channels.at(name)); }
 
 Channel *Server::GetChannelByName(std::string name) {
-    std::map<std::string, Channel>::iterator it = this->channels.begin();
+    std::map<std::string, Channel *>::iterator it = this->channels.begin();
 
     while (it != this->channels.end()){
-        if (toLowerString(it->second.GetName()) == toLowerString(name))
-            return (&it->second);
+        if (toLowerString(it->second->GetName()) == toLowerString(name))
+            return (it->second);
         it++;
     }
 
@@ -86,9 +86,9 @@ void Server::setTime() {
 }
 
 Client *Server::GetClientByNickname(std::string &nick) {
-    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if (it->second.GetNickname() == nick) {
-            return &it->second;
+    for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (it->second->GetNickname() == nick) {
+            return it->second;
         }
     }
     return NULL;
@@ -96,8 +96,8 @@ Client *Server::GetClientByNickname(std::string &nick) {
 
 int Server::GetClientChannelCount(Client *client) {
     int count = 1;
-    for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
-        if (it->second.GetClientInChannel(client->GetNickname())) {
+    for (std::map<std::string, Channel *>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
+        if (it->second->GetClientInChannel(client->GetNickname())) {
             count++;
         }
     }

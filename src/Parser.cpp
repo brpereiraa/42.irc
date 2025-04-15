@@ -3,6 +3,7 @@
 void Handler(int fd, std::string line, Server &server)
 {
     ACommands *command = NULL;
+    Client *client;
     
     size_t pos = line.find('\r');
     if (pos != std::string::npos)
@@ -12,8 +13,10 @@ void Handler(int fd, std::string line, Server &server)
     std::string cmds;
     std::getline(iss, cmds, ' ');
 
+    client = server.GetClient(fd);
+    
     std::cout << 
-        (!server.GetClient(fd)->GetNickname().empty() ? server.GetClient(fd)->GetNickname() : "*") << 
+        (!client->GetNickname().empty() ? client->GetNickname() : "*") << 
         ": " << RED << line << RESET << std::endl;
 
     if (cmds.empty())

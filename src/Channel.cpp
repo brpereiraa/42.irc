@@ -43,7 +43,7 @@ Client* Channel::GetClientByNick(std::string nickname) {
     // Search in regular clients
     std::map<int, Client *>::iterator it = this->clients.begin();
     while (it != this->clients.end()) {
-        if (it->second->GetNickname() == nickname)
+        if (toLowerString(it->second->GetNickname()) == toLowerString(nickname))
             return it->second;
         ++it;
     }
@@ -55,7 +55,7 @@ Client *Channel::GetAdminByNick(std::string nickname) {
     std::map<int, Client *>::iterator it = this->admins.begin();
 
     while (it != this->admins.end()){
-        if (it->second->GetNickname() == nickname)
+        if (toLowerString(it->second->GetNickname()) == toLowerString(nickname))
             return (it->second);
         ++it;
     }

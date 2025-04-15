@@ -7,26 +7,26 @@ User::User(Server &server): ACommands(server){
 void User::execute(int fd, const std::string &line){
 	std::istringstream stream(line);
 	std::string word;
-	Client client;
-	std::map<int, Client>::iterator it;
+	Client *client;
+	std::map<int, Client *>::iterator it;
 	int i;
 	
-	it = server.getClients().find(fd);
+	it = server.getClients()->find(fd);
 	client = it->second;
-	it = server.getClients().begin();
+	it = server.getClients()->begin();
 	i = -1;
 
 	//Check password handling
-	if (server.getPassword() != "" && client.GetPassword() != server.getPassword()) {
+	if (server.getPassword() != "" && client->GetPassword() != server.getPassword()) {
 		server.sendResponse(":myserver 464 " 
-			+ (!client.GetNickname().empty() ? client.GetNickname() : "*")  
+			+ (!client->GetNickname().empty() ? client->GetNickname() : "*")  
 			+ " :Password incorrect\r\n", fd);
 		return ;
 	}
 
 	//Check if already logged
 	if (this->server.GetClient(fd)->GetLoggedIn()){
-		this->server.sendResponse(":myserver 462 " + client.GetNickname() + " :You may not reregister\r\n", fd);
+		this->server.sendResponse(":myserver 462 " + client->GetNickname() + " :You may not reregister\r\n", fd);
 		return ;
 	}
 
@@ -38,7 +38,7 @@ void User::execute(int fd, const std::string &line){
 		if (i == 2) {
 			if (word != "0") {
 				this->server.sendResponse(":myserver 464 " 
-					+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+					+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 					+ " :Erroneous username\r\n", fd);
 				return ;
 			}
@@ -47,22 +47,22 @@ void User::execute(int fd, const std::string &line){
 		if (i == 3) {
 			if (word != "*") {
 				this->server.sendResponse(":myserver 464 " 
-					+ (!client.GetNickname().empty() ? client.GetNickname() : "*") 
+					+ (!client->GetNickname().empty() ? client->GetNickname() : "*") 
 					+ " :Erroneous username\r\n", fd);
 				return ;
 			}
 		}
 
 		if (i == 1) {
-			it = server.getClients().find(fd);
-			if (it == server.getClients().end())
+			it = server.getClients()->find(fd);
+			if (it == server.getClients()->end())
 				return ;
-			it->second.SetUsername(word);
+			it->second->SetUsername(word);
 		}
 
 	}
 
 	//Missing argument
 	if (i < 4)
-		server.sendResponse(":myserver 461 " + client.GetNickname() + " :Not enough parameters\r\n", fd);
+		server.sendResponse(":myserver 461 " + client->GetNickname() + " :Not enough parameters\r\n", fd);
 }
