@@ -12,6 +12,7 @@ void Nick::execute(int fd, const std::string &line){
 	std::string word;
 	Client *client;
 	std::map<int, Client *>::iterator it;
+	std::string cmd = "NICK";
 	int i;
 	
 	it = server.getClients()->find(fd);

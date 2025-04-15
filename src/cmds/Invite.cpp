@@ -21,7 +21,7 @@ void Invite::execute(int fd, const std::string &line)
 
 	//Check auth handling
 	if (!client->GetLoggedIn()) {
-		server.sendResponse(":myserver 464 " + client->GetNickname() + " :Password incorrect\r\n", fd);
+		server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
 		return ;
 	}
 	

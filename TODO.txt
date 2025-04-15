@@ -1,9 +1,6 @@
 TODO:
  
---> CTRL D -> if buffer does not end with \r\n, append with the next buffer, just one time
-
 vasco:
-- CTRL D
 
 marcela:
 
@@ -12,6 +9,7 @@ bruno:
 - mode is not removing the operator
 
 TO TEST BEFORE EVAL:
+--> CTRL D -> if buffer does not end with \r\n, append with the next buffer, just one time
 - kick doesnt kick admins
 - part needs to remove admin
 - privmsg :

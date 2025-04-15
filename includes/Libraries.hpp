@@ -144,6 +144,9 @@
 #define CLIENT_NOTFOUND(nickname) \
     (nickname + " :Client not found in channel" + CRLF)
 
+#define ERR_NOTREGISTERED(cmd) \
+    (":myserver 451 " + cmd + " :You have not registered" + CRLF)
+
 
 #define RED "\033[0;31m"
 #define RESET "\033[0m"
