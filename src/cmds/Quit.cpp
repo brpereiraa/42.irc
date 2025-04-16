@@ -28,11 +28,9 @@ void Quit::execute(int fd, const std::string& line) {
         if (!chan) continue;
 
         const std::string& chanName = it->first;
-        bool wasInChannel = false;
 
         if (chan->GetClientByNick(client->GetNickname()) || chan->GetAdminByNick(client->GetNickname())) {
             chan->SendToAll(quitMsg, fd, this->server);
-            wasInChannel = true;
         }
 
         if (chan->GetClientByNick(client->GetNickname()))
