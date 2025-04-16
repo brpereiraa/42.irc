@@ -189,13 +189,13 @@ void Channel::ClearClients()
 bool Channel::GetClientInChannel(const std::string &nickname) 
 {
     for (std::map<int, Client *>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
-        if (it->second->GetNickname() == nickname) {
+        if (it->second && it->second->GetNickname() == nickname) {
             return true;
         }
     }
 
     for (std::map<int, Client *>::iterator it = this->admins.begin(); it != this->admins.end(); ++it) {
-        if (it->second->GetNickname() == nickname) {
+        if (it->second && it->second->GetNickname() == nickname) {
             return true;
         }
     }

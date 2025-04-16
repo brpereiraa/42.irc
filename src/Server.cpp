@@ -103,6 +103,7 @@ void Server::ReceiveNewData(int fd)
         close(fd);
         delete(cli);
     }
+    
     else //imprime os dados recebidos
     {
         //associar o buffer ao cliente aqui

@@ -50,15 +50,4 @@ void Quit::execute(int fd, const std::string& line) {
 
     // Envia a mensagem de QUIT para o próprio cliente (opcional)
     send(fd, quitMsg.c_str(), quitMsg.length(), 0);
-
-    // Remove o cliente e fecha o fd
-    std::map<int, Client*>* clients = this->server.getClients();
-    std::map<int, Client*>::iterator it = clients->find(fd);
-    if (it != clients->end()) {
-        delete it->second;
-        clients->erase(it);
-    }
-
-    close(fd);
-    std::cout << "Client <" << fd << "> disconnected with message: " << reason << std::endl;
 }

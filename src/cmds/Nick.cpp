@@ -61,19 +61,20 @@ void Nick::execute(int fd, const std::string &line){
 
 	//Missing argument
 	if (i == 0)
-		server.sendResponse(":myserver 431 " +  client->GetNickname() + " : No nickname has been provided.\r\n", fd);
+		server.sendResponse(":myserver 431 " +  client->GetNickname() + " :No nickname has been provided.\r\n", fd);
 }
 
 void Nick::SendSharedChannels(Client *client, std::string nickname, int fd) {
-    if (this->server.getChannels()->empty() || !client || nickname.empty()) {
+    if (!client || nickname.empty() || this->server.getChannels()->empty()) {
         return;
     }
-	
+
     std::map<std::string, Channel *>::iterator it = this->server.getChannels()->begin();
     while (it != this->server.getChannels()->end()) {
-        if (it->second->GetClientInChannel(client->GetNickname())) {
-            it->second->SendToAll(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + nickname + "\r\n", fd, this->server);
+        Channel* chan = it->second;
+        if (chan && chan->GetClientInChannel(client->GetNickname())) {
+            chan->SendToAll(":" + client->GetNickname() + "!" + client->GetUsername() + "@localhost NICK " + nickname + "\r\n", fd, this->server);
         }
-        it++;
+        ++it;
     }
-}	
+}

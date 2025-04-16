@@ -44,7 +44,7 @@ void Handler(int fd, std::string line, Server &server)
     else if (cmds == "PART")
         command = new Part(server);
     else if (cmds == "QUIT")
-        command = new Part(server);
+        command = new Quit(server);
         
     if (command) { 
         command->execute(fd, line);
