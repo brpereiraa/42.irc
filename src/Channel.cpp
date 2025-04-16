@@ -188,6 +188,9 @@ void Channel::ClearClients()
 
 bool Channel::GetClientInChannel(const std::string &nickname) 
 {
+//     if (!this->clients.empty())
+//         return false;
+
     for (std::map<int, Client *>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
         if (it->second && it->second->GetNickname() == nickname) {
             return true;

@@ -21,13 +21,16 @@ void Quit::execute(int fd, const std::string& line) {
 
     // Percorre todos os canais
     std::map<std::string, Channel*>* channels = this->server.getChannels();
+    if (!channels)
+        return ;
+
     std::vector<std::string> toRemove;
 
     for (std::map<std::string, Channel*>::iterator it = channels->begin(); it != channels->end(); ++it) {
         Channel* chan = it->second;
         if (!chan) continue;
 
-        const std::string& chanName = it->first;
+        const std::string& chanName = it->second->GetName();
 
         if (chan->GetClientByNick(client->GetNickname()) || chan->GetAdminByNick(client->GetNickname())) {
             chan->SendToAll(quitMsg, fd, this->server);

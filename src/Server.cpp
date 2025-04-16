@@ -98,6 +98,33 @@ void Server::ReceiveNewData(int fd)
 
     if (bytes <= 0) //cliente desconectou
     {
+        std::vector<std::string> toRemove;
+        for (std::map<std::string, Channel*>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
+            std::string quitMsg = ":" + cli->GetNickname() + "!" + cli->GetUsername() + "@localhost QUIT :Leaving\r\n";
+            Channel* chan = it->second;
+            if (!chan) continue;
+    
+            const std::string& chanName = it->second->GetName();
+    
+            if (chan->GetClientByNick(cli->GetNickname()) || chan->GetAdminByNick(cli->GetNickname())) {
+                chan->SendToAll(quitMsg, fd, *this);
+            }
+    
+            if (chan->GetClientByNick(cli->GetNickname()))
+                chan->RemoveClient(fd);
+    
+            if (chan->GetAdminByNick(cli->GetNickname()))
+                chan->RemoveAdmin(cli->GetNickname());
+    
+            if (chan->GetClients().empty() && chan->GetAdmins().empty())
+                toRemove.push_back(chanName);
+        }
+
+        // Remove canais vazios
+        for (size_t i = 0; i < toRemove.size(); ++i) {
+            this->removeChannel(toRemove[i]);
+        }
+
         cout << "Client <" << fd << "> disconnected" << endl;
         ClearClients(fd);
         close(fd);

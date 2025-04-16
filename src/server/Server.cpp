@@ -32,8 +32,12 @@ bool Server::addClient(Client *client) {
 }
 
 bool Server::removeChannel(std::string name) {
+    Channel *channel;
+
+    channel = this->GetChannelByName(name);
     if (this->channels.count(name)){
         this->channels.erase(name);
+        delete (channel);
         return (true);
     }
     std::cout << "Channel with name " << name << " doesn't exist" << std::endl;
@@ -95,6 +99,8 @@ Client *Server::GetClientByNickname(std::string &nick) {
 }
 
 int Server::GetClientChannelCount(Client *client) {
+    if (!client || client->GetNickname().empty())
+        return 0;
     int count = 1;
     for (std::map<std::string, Channel *>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
         if (it->second->GetClientInChannel(client->GetNickname())) {

@@ -10,6 +10,7 @@ bool Join::initialChecksJoin(int fd, Client* client, Channel* channel, const std
     if (!client || !channel)
         return true;
 
+
     if (this->server.GetClientChannelCount(client) >= 10) {
         this->server.sendResponse(ERR_TOOMANYCHANNELS(client->GetNickname(), channel->GetName()), fd);
         return true;
@@ -43,11 +44,13 @@ bool Join::initialChecksJoin(int fd, Client* client, Channel* channel, const std
 
 void Join::execute(int fd, const std::string &line)
 {
-    Client* sender = this->server.GetClient(fd);
-    if (!sender)
-        return;
-
     std::string cmd = "JOIN";
+    Client* sender = this->server.GetClient(fd);
+    if (!sender || !sender->GetLoggedIn()) {
+        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+        return;
+    }
+
     std::vector<std::string> tokens;
     std::istringstream ss(line);
     std::string token;
@@ -118,12 +121,11 @@ void Join::joinChannel(int fd, const std::string& channelName, const std::string
 void Join::createAndJoinChannel(int fd, const std::string& channelName, const std::string& key)
 {
     Client* client = this->server.GetClient(fd);
-    std::string cmd = "JOIN";
 
-    if (!client || !client->GetLoggedIn()) {
-        this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
-        return;
-    }
+    // if (!client || !client->GetLoggedIn()) {
+    //     this->server.sendResponse(ERR_NOTREGISTERED(cmd), fd);
+    //     return;
+    // }
 
     if (channelName[0] != '#') {
         this->server.sendResponse(ERR_NOSUCHCHANNEL(client->GetNickname(), channelName), fd);

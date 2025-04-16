@@ -65,7 +65,7 @@ void Nick::execute(int fd, const std::string &line){
 }
 
 void Nick::SendSharedChannels(Client *client, std::string nickname, int fd) {
-    if (!client || nickname.empty() || this->server.getChannels()->empty()) {
+    if (!client || !client->GetLoggedIn() || client->GetNickname().empty() || nickname.empty() || this->server.getChannels()->empty()) {
         return;
     }
 
