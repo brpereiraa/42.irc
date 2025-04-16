@@ -58,7 +58,7 @@ void Privmsg::execute(int fd, const std::string &line) {
         std::string response = ":" + sender->GetNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
 
         if (target[0] == '#') {
-            Channel* channel = this->server.GetChannel(target);
+            Channel* channel = this->server.GetChannelByName(target);
             if (!channel) {
                 this->server.sendResponse(ERR_NOSUCHCHANNEL(sender->GetNickname(), target), fd);
                 continue;

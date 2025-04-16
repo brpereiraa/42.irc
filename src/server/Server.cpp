@@ -87,7 +87,7 @@ void Server::setTime() {
 
 Client *Server::GetClientByNickname(std::string &nick) {
     for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if (it->second->GetNickname() == nick) {
+        if (toLowerString(it->second->GetNickname()) == nick) {
             return it->second;
         }
     }
